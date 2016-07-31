@@ -5,6 +5,7 @@ defmodule Geosnap.Db.App do
     import Supervisor.Spec, warn: false
 
     children = [
+      supervisor(Geosnap.Db.Repo, [])
     ]
 
     opts = [strategy: :one_for_one, name: Geosnap.Db.Supervisor]
