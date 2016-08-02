@@ -28,13 +28,8 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
-config :geosnap_db, Geosnap.Db.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  extensions: [{Geo.PostGIS.Extension, library: Geo}],
-  database: "geosnap_dev",
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost"
 
 config :geosnap_db, :ecto_repos,
   [Geosnap.Db.Repo]
+
+import_config "#{Mix.env}.exs"

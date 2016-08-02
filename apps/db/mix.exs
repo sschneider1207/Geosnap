@@ -18,7 +18,7 @@ defmodule Geosnap.Db.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :postgrex, :ecto, :geo],
+    [applications: [:logger, :postgrex, :ecto, :geo, :comeonin],
      mod: {Geosnap.Db.App, []}]
   end
 
@@ -38,6 +38,7 @@ defmodule Geosnap.Db.Mixfile do
   defp deps do
     [{:ecto, "~> 2.0"},
      {:postgrex, "~> 0.11.2"},
-     {:geo, "~> 1.1"}]
+     {:geo, "~> 1.1"},
+     {:comeonin, "~> 2.5"}]
   end
 end
