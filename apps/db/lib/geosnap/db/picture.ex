@@ -1,5 +1,6 @@
 defmodule Geosnap.Db.Picture do
   use Ecto.Schema
+  alias Geosnap.Db.{User, Category, Comment, PictureVote}
 
   schema "pictures" do
     field :title, :string

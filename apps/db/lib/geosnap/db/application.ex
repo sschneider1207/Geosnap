@@ -6,7 +6,7 @@ defmodule Geosnap.Db.Application do
     field :name, :string
     field :email, :string
 
-    has_one :api_key, ApiKey
+    has_one :api_key, Geosnap.Db.ApiKey
 
     timestamps
   end
