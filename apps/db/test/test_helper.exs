@@ -1,3 +1,3 @@
 ExUnit.start()
 
-alias Geosnap.Db.Repo
+Ecto.Adapters.SQL.Sandbox.mode(Geosnap.Db.Repo, :manual)

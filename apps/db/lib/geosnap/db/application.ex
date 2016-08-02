@@ -1,6 +1,6 @@
 defmodule Geosnap.Db.Application do
   use Ecto.Schema
-  import Ecto.Changeset
+  use Geosnap.Db.Changeset
 
   schema "applications" do
     field :name, :string
@@ -18,5 +18,6 @@ defmodule Geosnap.Db.Application do
     }
     %__MODULE__{}
     |> cast(params, [:name, :email])
+    |> validate_email(:email)
   end
 end

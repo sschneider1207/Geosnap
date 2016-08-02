@@ -6,6 +6,7 @@ defmodule Geosnap.Db.Repo.Migrations.AddUsersTable do
       add :username, :string, null: false
       add :email, :string, null: false
       add :hashed_password, :string, null: false
+      add :verified_email, :boolean, [null: false, default: false]
       add :permissions, :integer, [null: false, default: 0]
 
       timestamps
