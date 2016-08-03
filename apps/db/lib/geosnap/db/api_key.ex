@@ -19,11 +19,24 @@ defmodule Geosnap.Db.ApiKey do
       public_key: pub,
       private_key: priv
     }
-    %__MODULE__{}
+    changeset(%__MODULE__{}, params)
+  end
+
+  def rotate_key_changeset(api_key) do
+    {pub, priv} = Encryption.generate_key()
+    params = %{
+      public_key: pub,
+      private_key: priv
+    }
+    changeset(api_key, params)
+  end
+
+  defp changeset(api_key, params) do
+    api_key
     |> cast(params, [:application_id, :public_key, :private_key])
     |> validate_required([:application_id, :public_key, :private_key])
     |> unique_constraint(:public_key)
     |> unique_constraint(:application_id)
-    |> foreign_key_constraint(:application_id)
+    |> assoc_constraint(:application)
   end
 end

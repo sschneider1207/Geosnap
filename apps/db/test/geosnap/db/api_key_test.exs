@@ -8,6 +8,7 @@ defmodule Geosnap.Db.ApiKeyTest do
 
   test "public/private keys are generated in new changeset" do
     changeset = ApiKey.new_changeset(1)
+
     assert changeset.valid? == true
     assert changeset.changes.public_key != nil
     assert changeset.changes.private_key != nil
@@ -19,7 +20,7 @@ defmodule Geosnap.Db.ApiKeyTest do
       |> Repo.insert()
 
     assert changeset.valid? == false
-    assert changeset.errors[:application_id] == {"does not exist", []}
+    assert changeset.errors[:application] == {"does not exist", []}
   end
 
   test "inserts okay if application does exist" do
@@ -39,7 +40,7 @@ defmodule Geosnap.Db.ApiKeyTest do
       Application.new_changeset("test_app", "email@test.com")
       |> Repo.insert()
 
-    {:ok, api_key} =
+    {:ok, _} =
       ApiKey.new_changeset(app.id)
       |> Repo.insert()
     
@@ -49,5 +50,37 @@ defmodule Geosnap.Db.ApiKeyTest do
 
     assert changeset.valid? == false
     assert changeset.errors[:application_id] == {"has already been taken", []}
+  end
+
+  test "rotate key changeset generates new public/private keys" do
+    {:ok, app} = 
+      Application.new_changeset("test_app", "email@test.com")
+      |> Repo.insert()
+
+    {:ok, api_key} =
+      ApiKey.new_changeset(app.id)
+      |> Repo.insert()
+
+    changeset = ApiKey.rotate_key_changeset(api_key)
+    assert changeset.valid? == true
+    assert changeset.changes.public_key != nil
+    assert changeset.changes.private_key != nil
+    assert changeset.changes.public_key != api_key.public_key
+    assert changeset.changes.private_key != api_key.private_key
+  end
+
+  test "rotated key is updated okay" do
+    {:ok, app} = 
+      Application.new_changeset("test_app", "email@test.com")
+      |> Repo.insert()
+
+    {:ok, api_key} =
+      ApiKey.new_changeset(app.id)
+      |> Repo.insert()
+
+    result =
+      ApiKey.rotate_key_changeset(api_key)
+      |> Repo.update()
+    assert {:ok, _} = result
   end
 end

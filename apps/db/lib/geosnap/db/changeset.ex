@@ -1,12 +1,26 @@
 defmodule Geosnap.Db.Changeset do
   alias Ecto.Changeset
-  import Changeset, only: [validate_change: 3]
+  import Changeset
   
   @doc false
   defmacro __using__(_) do
     quote do
       import Ecto.Changeset
       import unquote(__MODULE__)
+    end
+  end
+
+  @doc """
+  Hashes the password field in the changeset and puts it in the `hashed_password` field.
+  """
+  @spec hash_password_field(Changeset.t) :: Changeset.t
+  def hash_password_field(changeset) do
+    case get_change(changeset, :password) do
+      nil ->
+        add_error(changeset, :password, "is missing")
+      password -> 
+        hashed_password = Geosnap.Encryption.hash_password(password)
+        put_change(changeset, :hashed_password, hashed_password)
     end
   end
 
