@@ -25,4 +25,17 @@ defmodule Geosnap.Db.CategoryTest do
 
     assert category.name == "nature"
   end
+
+  test "duplicate category can't be inserted" do
+    {:ok, category} =
+      Category.new_changeset("nature")
+      |> Repo.insert()
+
+    {:error, changeset} =
+      Category.new_changeset(category.name)
+      |> Repo.insert()
+
+    assert changeset.valid? == false
+    assert changeset.errors[:name] == {"has already been taken", []}
+  end
 end

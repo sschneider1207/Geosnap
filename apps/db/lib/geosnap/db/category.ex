@@ -14,5 +14,6 @@ defmodule Geosnap.Db.Category do
     %__MODULE__{}
     |> cast(%{name: name}, [:name])
     |> validate_required(:name)
+    |> unique_constraint(:name)
   end
 end
