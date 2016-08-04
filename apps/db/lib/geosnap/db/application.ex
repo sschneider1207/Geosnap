@@ -11,11 +11,11 @@ defmodule Geosnap.Db.Application do
     timestamps
   end
 
-  def new_changeset(name, email) do
-    params = %{
-      name: name,
-      email: email
-    }
+  @doc """
+  Creates a changeset for a new application based on a set of params.
+  """
+  @spec new_changeset(map) :: Ecto.Changeset.t
+  def new_changeset(params) do
     %__MODULE__{}
     |> cast(params, [:name, :email])
     |> validate_email(:email)

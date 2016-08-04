@@ -3,12 +3,14 @@ defmodule Geosnap.Db.ApplicationTest do
   alias Geosnap.Db.Application
 
   test "valid new changeset" do
-    changeset = Application.new_changeset("test_name", "email@test.com")
+    params = %{name: "test_name", email: "email@test.com"}
+    changeset = Application.new_changeset(params)
     assert changeset.valid? == true
   end
 
   test "invalid email is an invalid changeset" do
-    changeset = Application.new_changeset("test_name", "email@te st.com")
+    params = %{name: "test_name", email: "email@te st.com"}
+    changeset = Application.new_changeset(params)
     assert changeset.valid? == false
   end
 end

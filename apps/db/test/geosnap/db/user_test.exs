@@ -7,14 +7,16 @@ defmodule Geosnap.Db.UserTest do
   end
 
   test "new changeset hashes password correctly" do
-    changeset = User.new_changeset("username", "password123", "email@test.com")  
+    params = %{username: "username", password: "password123", email: "email@test.com"}
+    changeset = User.new_changeset(params)
     match = Geosnap.Encryption.check_password("password123", changeset.changes.hashed_password)
     
     assert match == true
   end
 
   test "new changeset with short password is not valid" do
-    changeset = User.new_changeset("username", "123456789", "email@test.com")
+    params = %{username: "username", password: "password", email: "email@test.com"}
+    changeset = User.new_changeset(params)
     
     assert changeset.valid? == false
     assert {reason, _} = changeset.errors[:password]
@@ -22,14 +24,16 @@ defmodule Geosnap.Db.UserTest do
   end
 
   test "new changeset with invalid email is not valid" do
-    changeset = User.new_changeset("username", "password123", "email@te st.com")
+    params = %{username: "username", password: "password123", email: "email@te st.com"}
+    changeset = User.new_changeset(params)
 
     assert changeset.valid? == false
   end
 
   test "valid new user inserts ok" do
+    params = %{username: "username", password: "password123", email: "email@test.com"}
     {:ok, user} =
-      User.new_changeset("username", "password123", "email@test.com")
+      User.new_changeset(params)
       |> Repo.insert()
 
     assert user.username == "username"
@@ -37,12 +41,14 @@ defmodule Geosnap.Db.UserTest do
   end
 
   test "cannot insert duplicate username" do
+    params1 = %{username: "username", password: "password123", email: "email@test.com"}
     {:ok, user} =
-      User.new_changeset("username", "password123", "email@test.com")
+      User.new_changeset(params1)
       |> Repo.insert()
 
+    params2 = %{username: user.username, password: "password123", email: "email2@test.com"}
     {:error, changeset} =
-      User.new_changeset(user.username, "password123", "email2@test.com")
+      User.new_changeset(params2)
       |> Repo.insert()
 
     assert changeset.valid? == false
@@ -50,12 +56,14 @@ defmodule Geosnap.Db.UserTest do
   end
 
   test "cannot insert duplicate email" do
+    params1 = %{username: "username", password: "password123", email: "email@test.com"}
     {:ok, user} =
-      User.new_changeset("username", "password123", "email@test.com")
+      User.new_changeset(params1)
       |> Repo.insert()
-
+    
+    params2 = %{username: "username1", password: "password123", email: user.email}
     {:error, changeset} =
-      User.new_changeset("username2", "password123", user.email)
+      User.new_changeset(params2)
       |> Repo.insert()
 
     assert changeset.valid? == false

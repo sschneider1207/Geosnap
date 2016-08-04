@@ -10,6 +10,10 @@ defmodule Geosnap.Db.Category do
     timestamps
   end
 
+  @doc """
+  Creates a changeset for a new category based on a name.
+  """
+  @spec new_changeset(String.t) :: Ecto.Changeset.t
   def new_changeset(name) do
     %__MODULE__{}
     |> cast(%{name: name}, [:name])
