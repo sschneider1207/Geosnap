@@ -1,7 +1,6 @@
 defmodule Geosnap.Db.User do
   use Ecto.Schema
   alias Geosnap.Db.{Picture, PictureVote, Comment, CommentVote}
-  alias Ecto.Changeset
   use Geosnap.Db.Changeset
 
   schema "users" do
@@ -22,7 +21,7 @@ defmodule Geosnap.Db.User do
   @doc """
   Creates a changeset for a new user based on a set of params.
   """
-  @spec new_changeset(map) :: Changeset.t
+  @spec new_changeset(map) :: Ecto.Changeset.t
   def new_changeset(params) do
     %__MODULE__{}
     |> changeset(params)
