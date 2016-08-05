@@ -4,10 +4,11 @@ defmodule Geosnap.Db.Picture do
 
   schema "pictures" do
     field :title, :string
-    field :point, Geo.Point
+    field :location, Geo.Point
     field :expiration, Ecto.DateTime
     field :picture_path, :string
     field :thumbnail_path, :string
+    field :md5, :string
 
     belongs_to :user, User
     belongs_to :category, Category
