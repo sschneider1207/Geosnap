@@ -1,7 +1,10 @@
 defmodule Geosnap.Db.ApiKey do
   use Ecto.Schema
-  import Ecto.Changeset
   alias Geosnap.Encryption
+  alias Ecto.Changeset
+  import Changeset
+
+  @type t :: %__MODULE__{}
 
   schema "api_keys" do
     field :public_key, :string
@@ -15,7 +18,7 @@ defmodule Geosnap.Db.ApiKey do
   @doc """
   Creates a changeset for a new api key based on an application id.
   """
-  @spec new_changeset(integer) :: Ecto.Changeset.t
+  @spec new_changeset(integer) :: Changeset.t
   def new_changeset(application_id) do
     {pub, priv} = Encryption.generate_key()
     params = %{
@@ -29,7 +32,7 @@ defmodule Geosnap.Db.ApiKey do
   @doc """
   Rotates the public/private key for an api key.
   """
-  @spec rotate_key_changeset(%__MODULE__{}) :: Ecto.Changeset.t
+  @spec rotate_key_changeset(t) :: Changeset.t
   def rotate_key_changeset(api_key) do
     {pub, priv} = Encryption.generate_key()
     params = %{
