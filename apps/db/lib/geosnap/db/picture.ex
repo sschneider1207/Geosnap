@@ -9,7 +9,7 @@ defmodule Geosnap.Db.Picture do
   schema "pictures" do
     field :title, :string
     field :location, Geo.Point
-    field :expiration, Ecto.DateTime
+    field :expiration, Timex.Ecto.DateTime
     field :picture_path, :string
     field :thumbnail_path, :string
     field :md5, :string
@@ -22,7 +22,20 @@ defmodule Geosnap.Db.Picture do
     timestamps
   end
 
+  @doc """
+  Creates a changeset for a new picture with the given params.
+  """
+  @spec new_changeset(map) :: Changeset.t
   def new_changeset(params) do
     %__MODULE__{}
+    |> cast(params, ~w(title location expiration picture_path      
+     thumbnail_path md5 user_id category_id)a)
+    |> validate_required(~w(title location expiration picture_path      
+     thumbnail_path md5 user_id category_id)a)
+    |> validate_lnglat(:location)
+    |> validate_expiration()
+    |> unique_constraint(:md5)
+    |> assoc_constraint(:user)
+    |> assoc_constraint(:category)
   end
 end

@@ -1,5 +1,5 @@
 defmodule Geosnap.Db.CategoryTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Geosnap.Db.{Category, Repo}
   
   setup do

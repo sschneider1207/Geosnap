@@ -17,10 +17,46 @@ defmodule Geosnap.Db.Changeset do
   def hash_password_field(changeset) do
     case get_change(changeset, :password) do
       nil ->
-        add_error(changeset, :password, "is missing")
+        changeset 
       password -> 
         hashed_password = Geosnap.Encryption.hash_password(password)
         put_change(changeset, :hashed_password, hashed_password)
+    end
+  end
+
+  @doc """
+  Validates the given field is a valid EPSG 4326 coordinate pair.
+  """
+  @spec validate_lnglat(Changeset.t, atom) :: Changeset.t
+  def validate_lnglat(changeset, field) do
+    validate_change(changeset, field, &do_validate_lnglat/2)
+  end
+
+  defp do_validate_lnglat(field, point) do
+    %{coordinates: {lng, lat}, srid: srid} = point
+    cond do
+      lng in -180..180 and lat in -90..90 and srid == 4326 -> []
+      true -> [{field, "is not a valid EPSG 4326 coordinate pair"}]
+    end
+  end
+
+  @doc """
+  Validates the `expiration` field to be between a set interval.
+  """
+  @spec validate_expiration(Changeset.t) :: Changeset.t
+  def validate_expiration(changeset) do
+    validate_change(changeset, :expiration, &do_validate_expiration/2)
+  end
+
+  defp do_validate_expiration(field, expiration) do
+    cur_hour = 
+      Timex.now()
+      |> Timex.set([minute: 0, second: 0, microsecond: {0, 0}])
+    min = Timex.shift(cur_hour, [hours: 1])
+    max = Timex.shift(cur_hour, [days: 1])
+    case Timex.between?(expiration, min, max) do
+      true -> []
+      false -> [{field, "is not a valid expiration datetime"}]
     end
   end
 
@@ -32,7 +68,7 @@ defmodule Geosnap.Db.Changeset do
     validate_change(changeset, field, &do_validate_email/2)
   end
 
-  def do_validate_email(field, email) do
+  defp do_validate_email(field, email) do
     case check_email(email) do
       false -> []
       true -> [{field, "is not a valid email address with no spaces or commas"}]
