@@ -29,5 +29,6 @@ defmodule Geosnap.Encryption do
   @doc """
   Checks a password against a hash in constant time.
   """
+  @spec check_password(String.t, String.t) :: boolean
   defdelegate check_password(password, hash), to: Comeonin.Pbkdf2, as: :checkpw
 end
