@@ -1,5 +1,5 @@
 defmodule Geosnap.Db.PictureVote do
-  use Ecto.Schema
+  use Geosnap.Db.Schema
   alias Geosnap.Db.{User, Picture}
 
   schema "picture_votes" do

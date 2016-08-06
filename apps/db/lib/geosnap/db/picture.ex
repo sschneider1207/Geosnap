@@ -1,6 +1,10 @@
 defmodule Geosnap.Db.Picture do
-  use Ecto.Schema
+  use Geosnap.Db.Schema
   alias Geosnap.Db.{User, Category, Comment, PictureVote}
+  use Geosnap.Db.Changeset
+  alias Ecto.Changeset
+
+  @type t :: %__MODULE__{}
 
   schema "pictures" do
     field :title, :string
@@ -16,5 +20,9 @@ defmodule Geosnap.Db.Picture do
     has_many :picture_votes, PictureVote
 
     timestamps
+  end
+
+  def new_changeset(params) do
+    %__MODULE__{}
   end
 end

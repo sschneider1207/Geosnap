@@ -1,5 +1,5 @@
 defmodule Geosnap.Db.ApiKey do
-  use Ecto.Schema
+  use Geosnap.Db.Schema
   alias Geosnap.Encryption
   alias Ecto.Changeset
   import Changeset

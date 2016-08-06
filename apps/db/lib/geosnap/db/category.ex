@@ -1,5 +1,5 @@
 defmodule Geosnap.Db.Category do
-  use Ecto.Schema
+  use Geosnap.Db.Schema
   import Ecto.Changeset
 
   schema "categories" do

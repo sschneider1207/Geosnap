@@ -1,7 +1,7 @@
 defmodule Geosnap.Db.User do
-  use Ecto.Schema
-  alias Geosnap.Db.{Picture, PictureVote, Comment, CommentVote}
+  use Geosnap.Db.Schema
   use Geosnap.Db.Changeset
+  alias Geosnap.Db.{Picture, PictureVote, Comment, CommentVote}
   alias Ecto.Changeset
 
   @type t :: %__MODULE__{}

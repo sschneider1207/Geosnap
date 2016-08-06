@@ -1,5 +1,5 @@
 defmodule Geosnap.Db.Comment do
-  use Ecto.Schema
+  use Geosnap.Db.Schema
   alias Geosnap.Db.{User, Picture}
 
   schema "comments" do

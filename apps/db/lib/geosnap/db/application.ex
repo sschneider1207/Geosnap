@@ -1,5 +1,5 @@
 defmodule Geosnap.Db.Application do
-  use Ecto.Schema
+  use Geosnap.Db.Schema
   use Geosnap.Db.Changeset
   alias Ecto.Changeset
 

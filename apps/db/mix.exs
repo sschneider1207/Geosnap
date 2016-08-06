@@ -18,7 +18,7 @@ defmodule Geosnap.Db.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :postgrex, :ecto, :geo],
+    [applications: [:logger, :postgrex, :ecto, :geo, :timex, :timex_ecto],
      mod: {Geosnap.Db.App, []}]
   end
 
@@ -39,6 +39,8 @@ defmodule Geosnap.Db.Mixfile do
     [{:ecto, "~> 2.0"},
      {:postgrex, "~> 0.11.2"},
      {:geo, "~> 1.1"},
-     {:geosnap_encryption, in_umbrella: true, path: "../encryption"}]
+     {:geosnap_encryption, in_umbrella: true, path: "../encryption"},
+     {:timex, "~> 3.0"},
+     {:timex_ecto, "~> 3.0"}]
   end
 end
