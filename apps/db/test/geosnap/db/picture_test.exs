@@ -56,10 +56,10 @@ defmodule Geosnap.Db.PictureTest do
 
   test "location must be a valid coordinate for new changeset" do
     changeset =
-      params(%{location: %Geo.Point{coordinates: {160, 76}, srid: 4326}})
+      params(%{location: %Geo.Point{coordinates: {190, 76}, srid: 4326}})
       |> Picture.new_changeset()
 
-    assert changeset.valid? == true
+    assert changeset.valid? == false
   end
 
   test "location must have correct srid for new changeset" do
@@ -120,7 +120,7 @@ defmodule Geosnap.Db.PictureTest do
       |> Picture.new_changeset()
       |> Repo.insert()
 
-    assert {:ok, user} = result
+    assert {:ok, _user} = result
   end
 
   defp params(params) do
