@@ -1,6 +1,6 @@
 defmodule Geosnap.Db.Picture do
   use Geosnap.Db.Schema
-  alias Geosnap.Db.{User, Category, Comment, PictureVote}
+  alias Geosnap.Db.{Application, User, Category, Comment, PictureVote}
   use Geosnap.Db.Changeset
   alias Ecto.Changeset
 
@@ -16,6 +16,7 @@ defmodule Geosnap.Db.Picture do
 
     belongs_to :user, User
     belongs_to :category, Category
+    belongs_to :application, Application
     has_many :comments, Comment
     has_many :picture_votes, PictureVote
 
@@ -28,14 +29,15 @@ defmodule Geosnap.Db.Picture do
   @spec new_changeset(map) :: Changeset.t
   def new_changeset(params) do
     %__MODULE__{}
-    |> cast(params, ~w(title location expiration picture_path      
-     thumbnail_path md5 user_id category_id)a)
-    |> validate_required(~w(title location expiration picture_path      
+    |> cast(params, ~w(title location expiration picture_path
+     thumbnail_path md5 user_id category_id application_id)a)
+    |> validate_required(~w(title location expiration picture_path
      thumbnail_path md5 user_id category_id)a)
     |> validate_lnglat(:location)
     |> validate_expiration()
     |> unique_constraint(:md5)
     |> assoc_constraint(:user)
     |> assoc_constraint(:category)
+    |> assoc_constraint(:application)
   end
 end

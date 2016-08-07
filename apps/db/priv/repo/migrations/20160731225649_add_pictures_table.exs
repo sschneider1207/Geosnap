@@ -10,6 +10,7 @@ defmodule Geosnap.Db.Repo.Migrations.AddPicturesTable do
       add :md5, :string, null: false
       add :user_id, references(:users, [on_delete: :nilify_all, on_update: :update_all])
       add :category_id, references(:categories, [on_delete: :delete_all, on_update: :update_all]), null: false
+      add :application_id, references(:applications, [on_delete: :nilify_all, on_update: :update_all])
 
       timestamps
     end
