@@ -11,7 +11,10 @@ defmodule Geosnap.Db.Mixfile do
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps,
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.html": :test]
+   ]
   end
 
   # Configuration for the OTP application
@@ -41,6 +44,7 @@ defmodule Geosnap.Db.Mixfile do
      {:geo, "~> 1.1"},
      {:geosnap_encryption, in_umbrella: true, path: "../encryption"},
      {:timex, "~> 3.0"},
-     {:timex_ecto, "~> 3.0"}]
+     {:timex_ecto, "~> 3.0"},
+     {:excoveralls, "~> 0.5.5", only: :test}]
   end
 end
