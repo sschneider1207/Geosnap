@@ -4,7 +4,7 @@ defmodule Geosnap.Db.Repo.Migrations.AddApiKeysTable do
   def change do
     create table(:api_keys) do
       add :public_key, :string, null: :false
-      add :application_id, references(:applications), null: false
+      add :application_id, references(:applications, [on_delete: :delete_all, on_update: :update_all]), null: false
 
       timestamps
     end

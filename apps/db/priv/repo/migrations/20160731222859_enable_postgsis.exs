@@ -1,6 +1,6 @@
 defmodule Geosnap.Db.Repo.Migrations.EnablePostgsis do
   use Ecto.Migration
-  
+
   def up do
     execute "CREATE EXTENSION IF NOT EXISTS postgis"
   end

@@ -1,21 +1,25 @@
 defmodule Geosnap.Db.Repo.Migrations.AddPicturesTable do
   use Ecto.Migration
 
-  def change do
+  def up do
     create table(:pictures) do
       add :title, :string, null: false
       add :expiration, :datetime, null: false
       add :picture_path, :string, null: false
       add :thumbnail_path, :string, null: false
       add :md5, :string, null: false
-      add :user_id, references(:users), null: false
-      add :category_id, references(:categories), null: false
+      add :user_id, references(:users, [on_delete: :nilify_all, on_update: :update_all])
+      add :category_id, references(:categories, [on_delete: :delete_all, on_update: :update_all]), null: false
 
       timestamps
     end
 
     execute("ALTER TABLE pictures ADD COLUMN location geography(Point,4326)")
     create unique_index(:pictures, [:md5])
-    execute("CREATE INDEX pictures_location_index ON pictures USING GIST ( location )")
+    create unique_index(:pictures, [:location], using: "GIST")
+  end
+
+  def drop do
+
   end
 end
