@@ -1,6 +1,6 @@
 defmodule Geosnap.Db.UserTest do
   use ExUnit.Case, async: true
-  alias Geosnap.Db.{User, Repo}
+  alias Geosnap.Db.{User, Repo, PictureVote}
   alias Geosnap.Encryption
 
   setup do
@@ -11,14 +11,14 @@ defmodule Geosnap.Db.UserTest do
     params = %{username: "username", password: "password123", email: "email@test.com"}
     changeset = User.new_changeset(params)
     match = Encryption.check_password("password123", changeset.changes.hashed_password)
-    
+
     assert match == true
   end
 
   test "new changeset with short password is not valid" do
     params = %{username: "username", password: "password", email: "email@test.com"}
     changeset = User.new_changeset(params)
-    
+
     assert changeset.valid? == false
     assert {reason, _} = changeset.errors[:password]
     assert reason =~ "should be at least %{count} character(s)"
@@ -33,7 +33,7 @@ defmodule Geosnap.Db.UserTest do
 
   test "new user starts with unverified email" do
     {:ok, user} = new_user()
-    
+
     assert user.verified_email == false
   end
 
@@ -65,8 +65,8 @@ defmodule Geosnap.Db.UserTest do
   test "verify confirmed change password changeset is valid" do
     {:ok, user} = new_user()
     params = %{password: "password321", password_confirmation: "password321"}
-    changeset = User.change_password_changeset(user, params) 
-    
+    changeset = User.change_password_changeset(user, params)
+
     assert changeset.valid? == true
     match = Encryption.check_password("password321", changeset.changes.hashed_password)
     assert match == true
@@ -75,19 +75,19 @@ defmodule Geosnap.Db.UserTest do
   test "verify unconfirmed change password changeset isn't valid" do
     {:ok, user} = new_user()
     params = %{password: "password321", password_confirmation: "password123"}
-    changeset = User.change_password_changeset(user, params) 
-    
+    changeset = User.change_password_changeset(user, params)
+
     assert changeset.valid? == false
   end
 
   test "verify confirmed change email changeset is valid" do
     {:ok, user} = new_user()
-    {:ok, verified_user} = 
+    {:ok, verified_user} =
       User.verify_email_changeset(user)
       |> Repo.update()
     params = %{email: "email2@test.com", email_confirmation: "email2@test.com"}
-    changeset = User.change_email_changeset(verified_user, params) 
-    
+    changeset = User.change_email_changeset(verified_user, params)
+
     assert changeset.valid? == true
     assert changeset.changes.verified_email == false
   end
@@ -95,8 +95,8 @@ defmodule Geosnap.Db.UserTest do
   test "verify unconfirmed change email changeset isn't valid" do
     {:ok, user} = new_user()
     params = %{email: "email2@test.com", email_confirmation: "email@test.com"}
-    changeset = User.change_email_changeset(user, params) 
-    
+    changeset = User.change_email_changeset(user, params)
+
     assert changeset.valid? == false
   end
 
@@ -126,7 +126,7 @@ defmodule Geosnap.Db.UserTest do
       username: "username",
       password: "password123",
       email: "email@test.com"
-    } 
+    }
     |> Map.merge(params)
     |> User.new_changeset()
     |> Repo.insert()

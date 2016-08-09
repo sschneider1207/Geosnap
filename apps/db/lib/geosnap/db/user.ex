@@ -13,7 +13,8 @@ defmodule Geosnap.Db.User do
     field :hashed_password, :string
     field :verified_email, :boolean, default: false
     field :permissions, :integer, default: 0
-    
+    field :last_vote_time, Timex.Ecto.DateTime
+
     has_many :pictures, Picture
     has_many :picture_votes, PictureVote
     has_many :comments, Comment
@@ -39,7 +40,7 @@ defmodule Geosnap.Db.User do
   end
 
   @doc """
-  Creates a changeset that marks a user's email as verified. 
+  Creates a changeset that marks a user's email as verified.
   """
   @spec verify_email_changeset(t) :: Changeset.t
   def verify_email_changeset(user) do
@@ -59,7 +60,7 @@ defmodule Geosnap.Db.User do
     |> validate_confirmation(:password, required: true)
     |> hash_password_field()
   end
-  
+
   @doc """
   Creates a changeset for changing a user's email.
   A confirmation parameter `:email_confirmation` is expected.

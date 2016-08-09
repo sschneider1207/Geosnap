@@ -7,50 +7,50 @@ defmodule Geosnap.Db.PictureTest do
   end
 
   test "title is required for new changeset" do
-    changeset = 
+    changeset =
       params(%{title: nil})
       |> Picture.new_changeset()
-  
+
     assert changeset.valid? == false
   end
 
   test "location is required for new changeset" do
-    changeset = 
+    changeset =
       params(%{location: nil})
       |> Picture.new_changeset()
-  
+
     assert changeset.valid? == false
   end
 
   test "expiration is required for new changeset" do
-    changeset = 
+    changeset =
       params(%{expiration: nil})
       |> Picture.new_changeset()
-  
+
     assert changeset.valid? == false
   end
 
   test "picture_path is required for new changeset" do
-    changeset = 
+    changeset =
       params(%{picture_path: nil})
       |> Picture.new_changeset()
-  
+
     assert changeset.valid? == false
   end
 
   test "thumbnail_path is required for new changeset" do
-    changeset = 
+    changeset =
       params(%{thumbnail_path: nil})
       |> Picture.new_changeset()
-  
+
     assert changeset.valid? == false
   end
 
   test "md5 is required for new changeset" do
-    changeset = 
+    changeset =
       params(%{md5: nil})
       |> Picture.new_changeset()
-  
+
     assert changeset.valid? == false
   end
 
@@ -89,11 +89,11 @@ defmodule Geosnap.Db.PictureTest do
   end
 
   test "user must exist for new changeset" do
-    {:ok, category} = 
+    {:ok, category} =
       Category.new_changeset("category")
       |> Repo.insert()
 
-    {:error, changeset} = 
+    {:error, changeset} =
       params(%{category_id: category.id})
       |> Picture.new_changeset()
       |> Repo.insert()
@@ -102,7 +102,7 @@ defmodule Geosnap.Db.PictureTest do
   end
 
   test "valid new changeset inserts okay" do
-    {:ok, category} = 
+    {:ok, category} =
       Category.new_changeset("category")
       |> Repo.insert()
 
@@ -134,7 +134,7 @@ defmodule Geosnap.Db.PictureTest do
       picture_path: "/path/to/pic",
       thumbnail_path: "/path/to/thumbnail",
       md5: "abcdefghijklmnopqrstuvwxyz",
-      user_id: 1,
+      user_id: 2324,
       category_id: 1
     }
     |> Map.merge(params)

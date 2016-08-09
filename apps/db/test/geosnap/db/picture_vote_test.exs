@@ -19,13 +19,13 @@ defmodule Geosnap.Db.PictureVoteTest do
   end
 
   test "picture must exist for new changeset to be valid" do
-    {:ok, user} = 
+    {:ok, user} =
       %{username: "user", password: "1234567890", email: "e@t.com"}
       |> User.new_changeset()
       |> Repo.insert()
 
     {:error, changeset} =
-      %{user_id: user.id, picture_id: 1, value: 1}
+      %{user_id: user.id, picture_id: 0, value: 1}
       |> PictureVote.new_changeset()
       |> Repo.insert()
 
@@ -37,7 +37,7 @@ defmodule Geosnap.Db.PictureVoteTest do
       Category.new_changeset("cat")
       |> Repo.insert()
 
-    {:ok, user} = 
+    {:ok, user} =
       %{username: "user", password: "1234567890", email: "e@t.com"}
       |> User.new_changeset()
       |> Repo.insert()
@@ -60,7 +60,7 @@ defmodule Geosnap.Db.PictureVoteTest do
       Category.new_changeset("cat")
       |> Repo.insert()
 
-    {:ok, user} = 
+    {:ok, user} =
       %{username: "user", password: "1234567890", email: "e@t.com"}
       |> User.new_changeset()
       |> Repo.insert()
@@ -85,7 +85,7 @@ defmodule Geosnap.Db.PictureVoteTest do
   end
 
   test "value must not be less than -1 for update changeset to be valid" do
-    changeset = PictureVote.update_vote_changeset(%PictureVote{}, -2) 
+    changeset = PictureVote.update_vote_changeset(%PictureVote{}, -2)
 
     assert changeset.valid? == false
   end
