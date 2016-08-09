@@ -4,7 +4,7 @@ alias Geosnap.Db.{Repo, Application, ApiKey, Category, User, Picture}
 
 IO.puts "Inserting seed data"
 
-{:ok, app} = 
+{:ok, app} =
   Application.new_changeset(%{name: "test app", email: "test@example.com"})
   |> Repo.insert()
 

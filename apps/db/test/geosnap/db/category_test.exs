@@ -1,7 +1,7 @@
 defmodule Geosnap.Db.CategoryTest do
   use ExUnit.Case, async: true
   alias Geosnap.Db.{Category, Repo}
-  
+
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
   end
@@ -19,7 +19,7 @@ defmodule Geosnap.Db.CategoryTest do
   end
 
   test "any name can be inserted" do
-    {:ok, category} = 
+    {:ok, category} =
         Category.new_changeset("nature")
         |> Repo.insert()
 
@@ -29,7 +29,7 @@ defmodule Geosnap.Db.CategoryTest do
   test "duplicate category can't be inserted" do
     {:ok, category} =
       Category.new_changeset("nature")
-      |> Repot.insert()
+      |> Repo.insert()
     {:error, changeset} =
       Category.new_changeset(category.name)
       |> Repo.insert()

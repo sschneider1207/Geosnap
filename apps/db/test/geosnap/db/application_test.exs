@@ -28,7 +28,7 @@ defmodule Geosnap.Db.ApplicationTest do
 
   test "verify confirmed change email changeset is valid" do
     {:ok, app} = new_application()
-    {:ok, verified_app} = 
+    {:ok, verified_app} =
       Application.verify_email(app)
       |> Repo.update()
     params = %{email: "email2@test.com", email_confirmation: "email2@test.com"}

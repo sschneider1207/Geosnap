@@ -25,7 +25,7 @@ defmodule Geosnap.Db.ApiKeyTest do
 
   test "inserts okay if application does exist" do
     params = %{name: "test_app", email: "email@test.com"}
-    {:ok, app} = 
+    {:ok, app} =
       Application.new_changeset(params)
       |> Repo.insert()
 
@@ -38,15 +38,15 @@ defmodule Geosnap.Db.ApiKeyTest do
 
   test "applications can't get a second api key" do
     params = %{name: "test_app", email: "email@test.com"}
-    {:ok, app} = 
+    {:ok, app} =
       Application.new_changeset(params)
       |> Repo.insert()
 
     {:ok, _} =
       ApiKey.new_changeset(app.id)
       |> Repo.insert()
-    
-    {:error, changeset} = 
+
+    {:error, changeset} =
       ApiKey.new_changeset(app.id)
       |> Repo.insert()
 
@@ -56,7 +56,7 @@ defmodule Geosnap.Db.ApiKeyTest do
 
   test "rotate key changeset generates new public/private keys" do
     params = %{name: "test_app", email: "email@test.com"}
-    {:ok, app} = 
+    {:ok, app} =
       Application.new_changeset(params)
       |> Repo.insert()
 
@@ -74,7 +74,7 @@ defmodule Geosnap.Db.ApiKeyTest do
 
   test "rotated key is updated okay" do
     params = %{name: "test_app", email: "email@test.com"}
-    {:ok, app} = 
+    {:ok, app} =
       Application.new_changeset(params)
       |> Repo.insert()
 
