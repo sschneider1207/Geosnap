@@ -37,7 +37,7 @@ defmodule Geosnap.Db.Repo.Migrations.AddHotScoreFunction do
     """
     execute ~S"""
     ALTER FUNCTION hot_score(integer, timestamp without time zone)
-      OWNER TO pi;
+      OWNER TO postgres;
     """
   end
 

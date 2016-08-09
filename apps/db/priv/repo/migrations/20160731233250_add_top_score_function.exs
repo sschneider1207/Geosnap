@@ -25,7 +25,7 @@ defmodule Geosnap.Db.Repo.Migrations.AddTopScoreFunction do
 
     execute ~S"""
     ALTER FUNCTION top_score(integer)
-      OWNER TO pi;
+      OWNER TO postgres;
     """
   end
 
