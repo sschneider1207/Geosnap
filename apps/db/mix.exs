@@ -13,7 +13,11 @@ defmodule Geosnap.Db.Mixfile do
      start_permanent: Mix.env == :prod,
      deps: deps,
      test_coverage: [tool: ExCoveralls],
-     preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.html": :test]
+     preferred_cli_env: [
+       "coveralls": :test,
+       "coveralls.detail": :test,
+       "coveralls.html": :test,
+       "docs": :test]
    ]
   end
 
@@ -45,6 +49,7 @@ defmodule Geosnap.Db.Mixfile do
      {:geosnap_encryption, in_umbrella: true, path: "../encryption"},
      {:timex, "~> 3.0"},
      {:timex_ecto, "~> 3.0"},
-     {:excoveralls, "~> 0.5.5", only: :test}]
+     {:excoveralls, "~> 0.5.5", only: :test},
+     {:ex_doc, "~> 0.13.0", only: :test}]
   end
 end
