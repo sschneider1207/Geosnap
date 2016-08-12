@@ -1,6 +1,6 @@
 defmodule Geosnap.Db.UserTest do
   use ExUnit.Case, async: true
-  alias Geosnap.Db.{User, Repo, PictureVote}
+  alias Geosnap.Db.{User, Repo}
   alias Geosnap.Encryption
 
   setup do
