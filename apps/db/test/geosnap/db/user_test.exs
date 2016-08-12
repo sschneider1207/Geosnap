@@ -102,21 +102,21 @@ defmodule Geosnap.Db.UserTest do
 
   test "update permissions changeset isn't valid with negative number" do
     {:ok, user} = new_user()
-    changeset = User.update_permissions(user, -1)
+    changeset = User.update_permissions_changeset(user, -1)
 
     assert changeset.valid? == false
   end
 
   test "update permissions changeset is valid with positive number" do
     {:ok, user} = new_user()
-    changeset = User.update_permissions(user, 4)
+    changeset = User.update_permissions_changeset(user, 4)
 
     assert changeset.valid? == true
   end
 
   test "update permissions changeset isn't valid with nil" do
     {:ok, user} = new_user()
-    changeset = User.update_permissions(user, nil)
+    changeset = User.update_permissions_changeset(user, nil)
 
     assert changeset.valid? == false
   end

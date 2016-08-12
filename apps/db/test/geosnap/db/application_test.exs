@@ -20,7 +20,7 @@ defmodule Geosnap.Db.ApplicationTest do
 
   test "verify email changeset correctly flips status" do
     {:ok, app} = new_application()
-    changeset = Application.verify_email(app)
+    changeset = Application.verify_email_changeset(app)
 
     assert changeset.valid? == true
     assert changeset.changes.verified_email == true
@@ -29,7 +29,7 @@ defmodule Geosnap.Db.ApplicationTest do
   test "verify confirmed change email changeset is valid" do
     {:ok, app} = new_application()
     {:ok, verified_app} =
-      Application.verify_email(app)
+      Application.verify_email_changeset(app)
       |> Repo.update()
     params = %{email: "email2@test.com", email_confirmation: "email2@test.com"}
     changeset = Application.change_email_changeset(verified_app, params)

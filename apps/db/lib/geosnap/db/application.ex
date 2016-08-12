@@ -29,7 +29,7 @@ defmodule Geosnap.Db.Application do
   Creates a changeset for verifying an application's email.
   """
   @spec verify_email(t) :: Changeset.t
-  def verify_email(application) do
+  def verify_email_changeset(application) do
     application
     |> cast(%{verified_email: true}, [:verified_email])
   end

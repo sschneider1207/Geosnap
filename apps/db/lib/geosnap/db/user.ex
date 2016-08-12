@@ -79,7 +79,7 @@ defmodule Geosnap.Db.User do
   Creates a changeset for updating a user's permissions.
   """
   @spec update_permissions(t, integer) :: Changeset.t
-  def update_permissions(user, permissions) do
+  def update_permissions_changeset(user, permissions) do
     user
     |> cast(%{permissions: permissions}, [:permissions])
     |> validate_required(:permissions)
