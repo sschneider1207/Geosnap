@@ -1,7 +1,7 @@
 defmodule Geosnap.Db.User do
   use Geosnap.Db.Schema
   use Geosnap.Db.Changeset
-  alias Geosnap.Db.{Picture, PictureVote, Comment, CommentVote}
+  alias Geosnap.Db.{Picture, PictureVote, Comment}
   alias Ecto.Changeset
 
   @type t :: %__MODULE__{}
@@ -18,7 +18,6 @@ defmodule Geosnap.Db.User do
     has_many :pictures, Picture
     has_many :picture_votes, PictureVote
     has_many :comments, Comment
-    has_many :comment_votes, CommentVote
 
     timestamps
   end
