@@ -1,5 +1,5 @@
 defmodule Geosnap.Db do
-  alias Geosnap.Db.{Repo, Application, ApiKey, User}
+  alias Geosnap.Db.{Repo, Application, ApiKey, User, Picture}
   import Ecto.Query
 
   @doc """
@@ -26,7 +26,7 @@ defmodule Geosnap.Db do
   """
   @spec change_application_email(Application.t, map) :: {:ok, Application.t} | {:error, map}
   def change_application_email(application, params) do
-    insert_or_update(
+    do_repo_action(
       fn -> Application.change_email_changeset(application, params) end,
       &Repo.update/1
     )
@@ -68,7 +68,7 @@ defmodule Geosnap.Db do
   """
   @spec new_user(map) :: {:ok, User.t} | {:error, map}
   def new_user(params) do
-    insert_or_update(
+    do_repo_action(
       fn -> User.new_changeset(params) end,
       &Repo.insert/1
     )
@@ -79,7 +79,7 @@ defmodule Geosnap.Db do
   """
   @spec change_user_password(User.t, map) :: {:ok, User.t} | {:error, map}
   def change_user_password(user, params) do
-    insert_or_update(
+    do_repo_action(
       fn -> User.change_password_changeset(user, params) end,
       &Repo.update/1
     )
@@ -90,7 +90,7 @@ defmodule Geosnap.Db do
   """
   @spec change_user_email(User.t, map) :: {:ok, User.t} | {:error, map}
   def change_user_email(user, params) do
-    insert_or_update(
+    do_repo_action(
       fn -> User.change_email_changeset(user, params) end,
       &Repo.update/1
     )
@@ -107,7 +107,49 @@ defmodule Geosnap.Db do
     Repo.get_by(User, username: username)
   end
 
-  defp insert_or_update(gen_changeset, repo_action) do
+  @doc """
+  Creates a new picture.
+  """
+  @spec new_picture(map) :: {:ok, Picture.t} | {:error, map}
+  def new_picture(params) do
+    do_repo_action(
+      fn -> Picture.new_changeset(params) end,
+      &Repo.insert/1
+    )
+  end
+
+  @doc """
+  Deletes a picture.
+  """
+  @spec delete_picture(Picture.t) :: :ok | {:error, map}
+  def delete_picture(picture) do
+    case Repo.delete(picture) do
+      {:ok, _picture} ->
+        :ok
+      {:error, changeset} ->
+        {:error, errors_to_map(changeset)}
+    end
+  end
+
+  @doc """
+  Gets pictures around a longitude-latitude pair.
+  """
+  @spec get_pictures(float, float, Keyword.t) :: [Picture.t]
+  def get_pictures(lng, lat, opts \\ []) do
+    import PostGIS
+    point = %Point{coordinates: {lng, lat}, srid: 4236}
+    radius = Keyword.get(opts, :radius, 1_000)
+    limit = Keyword.get(opts, :limit, 24)
+    offset = Keyword.get(opts, :offset, 0)
+
+    from p in Picture,
+      where: st_dwithin(p.point, ^point, ^radius),
+      limit: ^limit,
+      offset: ^offset
+    |> Repo.all()
+  end
+
+  defp do_repo_action(gen_changeset, repo_action) do
     with %{valid?: true} = changeset <- gen_changeset.(),
       {:ok, schema} <- repo_action.(changeset) do
         {:ok, schema}
