@@ -51,16 +51,13 @@ defmodule Geosnap.Db do
   @doc """
   Gets an application by the public key of it's api key.
   """
-  @spec get_application(String.t) :: Application.t
+  @spec get_application(String.t) :: Application.t | nil
   def get_application(public_key) do
     query = from a in Application,
       join: k in assoc(a, :api_key),
       where: k.public_key == ^public_key,
       preload: [api_key: k]
-    case Repo.one(query) do
-      nil -> {:error, :not_found}
-      application -> {:ok, application}
-    end
+    Repo.one(query)
   end
 
   @doc """
