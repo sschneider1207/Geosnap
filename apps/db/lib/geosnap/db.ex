@@ -136,16 +136,21 @@ defmodule Geosnap.Db do
   """
   @spec get_pictures(float, float, Keyword.t) :: [Picture.t]
   def get_pictures(lng, lat, opts \\ []) do
-    import PostGIS
-    point = %Point{coordinates: {lng, lat}, srid: 4236}
+    import Geo.PostGIS
+    point = %Geo.Point{coordinates: {lng, lat}, srid: 4236}
     radius = Keyword.get(opts, :radius, 1_000)
-    limit = Keyword.get(opts, :limit, 24)
-    offset = Keyword.get(opts, :offset, 0)
-
-    Repo.all(from p in Picture,
-      where: st_dwithin(p.point, ^point, ^radius),
-      limit: ^limit,
-      offset: ^offset)
+    query = from p in Picture,
+      where: st_dwithin(p.location, ^point, ^radius)
+    query = case Keyword.get(opts, :limit, :infinity) do
+      :infinity ->
+        query
+      limit ->
+        offset = Keyword.get(opts, :offset, 0)
+        from p in query,
+          limit: ^limit,
+          offset: ^offset
+    end
+    Repo.all(query)
   end
 
   defp do_repo_action(gen_changeset, repo_action) do
