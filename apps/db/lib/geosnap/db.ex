@@ -142,11 +142,10 @@ defmodule Geosnap.Db do
     limit = Keyword.get(opts, :limit, 24)
     offset = Keyword.get(opts, :offset, 0)
 
-    from p in Picture,
+    Repo.all(from p in Picture,
       where: st_dwithin(p.point, ^point, ^radius),
       limit: ^limit,
-      offset: ^offset
-    |> Repo.all()
+      offset: ^offset)
   end
 
   defp do_repo_action(gen_changeset, repo_action) do
