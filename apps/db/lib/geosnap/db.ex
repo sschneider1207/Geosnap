@@ -40,7 +40,7 @@ defmodule Geosnap.Db do
   def rotate_application_key(application) do
     application = Repo.preload(application, :api_key)
     changeset = ApiKey.rotate_key_changeset(application.api_key)
-    case Repo.insert(changeset) do
+    case Repo.update(changeset) do
       {:ok, api_key} ->
         {:ok, %{application | api_key: api_key}}
       {:error, changeset} ->
