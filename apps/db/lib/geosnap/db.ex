@@ -1,5 +1,5 @@
 defmodule Geosnap.Db do
-  alias Geosnap.Db.{Repo, Application, ApiKey, User, Picture}
+  alias Geosnap.Db.{Repo, Application, ApiKey, User, Picture, PictureVote, Comment}
   import Ecto.Query
 
   @doc """
@@ -151,6 +151,91 @@ defmodule Geosnap.Db do
           offset: ^offset
     end
     Repo.all(query)
+  end
+
+  @doc """
+  Get a picture by id, optionally including all comments on the picture.
+  """
+  @spec get_picture(integer, boolean) :: Picture.t | nil
+  def get_picture(id, include_comments \\ false)
+  def get_picture(id, false) do
+    Repo.get(Picture, id)
+  end
+  def get_picture(id, true) do
+    Repo.one(from p in Picture,
+      join: c in assoc(p, :comments),
+      where: p.id == ^id,
+      preload: [comments: c])
+  end
+
+  @doc """
+  Creates a new vote for a user on a picture.
+  """
+  @spec vote_on_picture(map) :: {:ok, PictureVote.t} | {:error, map}
+  def vote_on_picture(params) do
+    do_repo_action(
+      fn -> PictureVote.new_changeset(params) end,
+      &Repo.insert/1
+    )
+  end
+
+  @doc """
+  Updates the vote value for an existing vote.
+  """
+  @spec update_vote_on_picture(PictureVote.t, integer) :: {:ok, PictureVote.t} | {:error, map}
+  def update_vote_on_picture(vote, new_value) do
+    do_repo_action(
+      fn -> PictureVote.update_vote_changeset(vote, new_value) end,
+      &Repo.update/1
+    )
+  end
+
+  @doc """
+  Deletes a picture vote.
+  """
+  @spec delete_picture_vote(PictureVote.t) :: :ok | {:error, map}
+  def delete_picture_vote(vote) do
+    case Repo.delete(vote) do
+      {:ok, _vote} ->
+        :ok
+      {:error, changeset} ->
+        {:error, errors_to_map(changeset)}
+    end
+  end
+
+  @doc """
+  Creates a new comment for a picture.
+  """
+  @spec new_comment(map) :: {:ok, Comment.t} | {:error, map}
+  def new_comment(params) do
+    do_repo_action(
+      fn -> Comment.new_changeset(params) end,
+      &Repo.insert/1
+    )
+  end
+
+  @doc """
+  Changes the text of a comment to "<deleted>".
+  """
+  @spec mark_comment_as_deleted(Comment.t) :: {:ok, Comment.t} | {:error, map}
+  def mark_comment_as_deleted(comment) do
+    do_repo_action(
+      fn -> Comment.delete_changeset(comment) end,
+      &Repo.update/1
+    )
+  end
+
+  @doc """
+  Deletes a comment.
+  """
+  @spec delete_comment(Comment.t) :: :ok | {:error, map}
+  def delete_comment(comment) do
+    case Repo.delete(comment) do
+      {:ok, _comment} ->
+        :ok
+      {:error, changeset} ->
+        {:error, errors_to_map(changeset)}
+    end
   end
 
   defp do_repo_action(gen_changeset, repo_action) do
