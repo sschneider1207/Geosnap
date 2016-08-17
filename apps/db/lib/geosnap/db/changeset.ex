@@ -1,7 +1,7 @@
 defmodule Geosnap.Db.Changeset do
   alias Ecto.Changeset
   import Changeset
-  
+
   @doc false
   defmacro __using__(_) do
     quote do
@@ -17,8 +17,8 @@ defmodule Geosnap.Db.Changeset do
   def hash_password_field(changeset) do
     case get_change(changeset, :password) do
       nil ->
-        changeset 
-      password -> 
+        changeset
+      password ->
         hashed_password = Geosnap.Encryption.hash_password(password)
         put_change(changeset, :hashed_password, hashed_password)
     end
@@ -35,8 +35,10 @@ defmodule Geosnap.Db.Changeset do
   defp do_validate_lnglat(field, point) do
     %{coordinates: {lng, lat}, srid: srid} = point
     cond do
-      lng in -180..180 and lat in -90..90 and srid == 4326 -> []
-      true -> [{field, "is not a valid EPSG 4326 coordinate pair"}]
+      lng < -180.0 or lng > 180.0 -> [{field, "has an invalid longitude value"}]
+      lat < -90.0 or lat > 90.0 -> [{field, "has an invalid latitude value"}]
+      srid != 4326 -> [{field, "is not an EPSG 4326 coordinate pair"}]
+      true -> []
     end
   end
 
@@ -49,7 +51,7 @@ defmodule Geosnap.Db.Changeset do
   end
 
   defp do_validate_expiration(field, expiration) do
-    cur_hour = 
+    cur_hour =
       Timex.now()
       |> Timex.set([minute: 0, second: 0, microsecond: {0, 0}])
     min = Timex.shift(cur_hour, [hours: 1])
@@ -104,13 +106,13 @@ defmodule Geosnap.Db.Changeset do
   defp check_email(
     <<?@ :: utf8, rem :: binary>>,
     amp = true,
-    spaces, 
+    spaces,
     text_before,
     text_after,
     dot_after,
     _error
   ) do
-    check_email(rem, amp, spaces, text_before, text_after, dot_after, true) 
+    check_email(rem, amp, spaces, text_before, text_after, dot_after, true)
   end
   defp check_email(
     <<?@ :: utf8, rem :: binary>>,

@@ -208,10 +208,10 @@ defmodule Geosnap.DbTest do
     {:ok, picture} = new_picture(user.id, category.id)
     picture2 = Db.get_picture(picture.id)
 
-    assert picture == picture2
+    assert picture.id == picture2.id
   end
 
-  test "can get pictures with loaded comments with legit id" do
+  test "can get pictures and loaded comments with legit id" do
     {:ok, user} = new_user()
     {:ok, category} = new_category()
     {:ok, picture} = new_picture(user.id, category.id)
@@ -221,6 +221,70 @@ defmodule Geosnap.DbTest do
     assert picture2.id == picture.id
     assert length(picture2.comments) == 1
     assert hd(picture2.comments).id == comment.id
+  end
+
+  test "can create vote on a picture if one doesn't exist" do
+    {:ok, user} = new_user()
+    {:ok, category} = new_category()
+    {:ok, picture} = new_picture(user.id, category.id)
+    {:ok, vote} = Db.vote_on_picture(%{user_id: user.id, picture_id: picture.id, value: 1})
+
+    assert vote.user_id == user.id
+    assert vote.picture_id == picture.id
+    assert vote.value == 1
+  end
+
+  test "can't vote on the same picture twice" do
+    {:ok, user} = new_user()
+    {:ok, category} = new_category()
+    {:ok, picture} = new_picture(user.id, category.id)
+    {:ok, _vote} = Db.vote_on_picture(%{user_id: user.id, picture_id: picture.id, value: 1})
+    {:error, errors} = Db.vote_on_picture(%{user_id: user.id, picture_id: picture.id, value: 1})
+
+    assert Map.has_key?(errors, :picture)
+  end
+
+  test "can't vote on non existant picture" do
+    {:ok, user} = new_user()
+    {:error, errors} = Db.vote_on_picture(%{user_id: user.id, picture_id: 1, value: 1})
+
+    assert Map.has_key?(errors, :picture)
+  end
+
+  test "can update existing vote" do
+    {:ok, user} = new_user()
+    {:ok, category} = new_category()
+    {:ok, picture} = new_picture(user.id, category.id)
+    {:ok, vote} = Db.vote_on_picture(%{user_id: user.id, picture_id: picture.id, value: 1})
+    {:ok, vote2} = Db.update_vote_on_picture(vote, -1)
+
+    assert vote.id == vote2.id
+    assert vote.value != vote2.value
+    assert vote2.value == -1
+  end
+
+  test "can't update non existant vote" do
+    assert_raise(
+      Ecto.StaleEntryError,
+      fn -> Db.update_vote_on_picture(%Db.PictureVote{id: 1}, 1) end
+    )
+  end
+
+  test "can delete existing vote" do
+    {:ok, user} = new_user()
+    {:ok, category} = new_category()
+    {:ok, picture} = new_picture(user.id, category.id)
+    {:ok, vote} = Db.vote_on_picture(%{user_id: user.id, picture_id: picture.id, value: 1})
+    result = Db.delete_picture_vote(vote)
+
+    assert :ok = result
+  end
+
+  test "can't delete non existant vote" do
+    assert_raise(
+      Ecto.StaleEntryError,
+      fn -> Db.delete_picture_vote(%Db.PictureVote{id: 1}) end
+    )
   end
 
   def new_user(params \\ %{}) do
@@ -244,7 +308,7 @@ defmodule Geosnap.DbTest do
       user_id: user_id,
       category_id: category_id,
       expiration: Timex.now() |> Timex.shift(hours: 1),
-      location: %Geo.Point{coordinates: {80,40}, srid: 4326},
+      location: %Geo.Point{coordinates: {80.0,40.0}, srid: 4326},
       md5: "123",
       picture_path: "/p",
       thumbnail_path: "/t"
