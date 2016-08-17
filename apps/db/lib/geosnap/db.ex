@@ -134,7 +134,7 @@ defmodule Geosnap.Db do
   @spec get_pictures(float, float, Keyword.t) :: [Picture.t]
   def get_pictures(lng, lat, opts \\ []) do
     import Geo.PostGIS
-    point = %Geo.Point{coordinates: {lng, lat}, srid: 4236}
+    point = %Geo.Point{coordinates: {lng, lat}, srid: 4326}
     radius = Keyword.get(opts, :radius, 1_000)
     query = from p in Picture,
       where: st_dwithin(p.location, ^point, ^radius)
