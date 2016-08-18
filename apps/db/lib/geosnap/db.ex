@@ -54,7 +54,7 @@ defmodule Geosnap.Db do
   @doc """
   Gets an application by the public key of it's api key.
   """
-  @spec get_application(String.t) :: Application.t | nil
+  @spec get_application(Geosnap.Encryption.public_key) :: Application.t | nil
   def get_application(public_key) do
     query = from a in Application,
       join: k in assoc(a, :api_key),

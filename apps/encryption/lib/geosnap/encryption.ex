@@ -1,10 +1,13 @@
 defmodule Geosnap.Encryption do
+  @moduledoc """
+  General purpose encryption functions for the Geosnap ecosystem.
+  """
   @curve Application.get_env(:geosnap_encryption, :curve_name)
 
   @type key :: {public_key, private_key}
   @type public_key :: String.t
   @type private_key :: String.t
-  
+
   @doc """
   Generates an ECDH public/private key derived from the specified private key, or from
   none of not given.
