@@ -287,6 +287,57 @@ defmodule Geosnap.DbTest do
     )
   end
 
+  test "can create a new comment with valid params" do
+    {:ok, user} = new_user()
+    {:ok, category} = new_category()
+    {:ok, picture} = new_picture(user.id, category.id)
+    {:ok, comment} = Db.new_comment(%{user_id: user.id, picture_id: picture.id, text: "sop"})
+
+    assert comment.user_id == user.id
+    assert comment.picture_id == picture.id
+  end
+
+  test "can't create a new comment with bad params" do
+    {:error, errors} = Db.new_comment(%{user_id: 1, picture_id: 1, text: "sop"})
+
+    assert Map.has_key?(errors, :user)
+  end
+
+  test "can mark existing comment as deleted" do
+    {:ok, user} = new_user()
+    {:ok, category} = new_category()
+    {:ok, picture} = new_picture(user.id, category.id)
+    {:ok, comment} = Db.new_comment(%{user_id: user.id, picture_id: picture.id, text: "sop"})
+    {:ok, deleted} = Db.mark_comment_as_deleted(comment)
+
+    assert deleted.id == comment.id
+    assert deleted.text =~ "<deleted>"
+  end
+
+  test "can't mark non existant comment as deleted" do
+    assert_raise(
+      Ecto.StaleEntryError,
+      fn -> Db.mark_comment_as_deleted(%Db.Comment{id: 1}) end
+    )
+  end
+
+  test "can delete existing comment" do
+    {:ok, user} = new_user()
+    {:ok, category} = new_category()
+    {:ok, picture} = new_picture(user.id, category.id)
+    {:ok, comment} = Db.new_comment(%{user_id: user.id, picture_id: picture.id, text: "sop"})
+    result = Db.delete_comment(comment)
+
+    assert :ok = result
+  end
+
+  test "can't delete non existant comment" do
+    assert_raise(
+      Ecto.StaleEntryError,
+      fn -> Db.delete_comment(%Db.Comment{id: 1}) end
+    )
+  end
+
   def new_user(params \\ %{}) do
     %{
       username: "user",
