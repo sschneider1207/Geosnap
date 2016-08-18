@@ -1,4 +1,7 @@
 defmodule Geosnap.Db.Category do
+  @moduledoc """
+  Ecto schema for a picture category.
+  """
   use Geosnap.Db.Schema
   import Ecto.Changeset
 

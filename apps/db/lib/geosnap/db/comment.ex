@@ -1,4 +1,7 @@
 defmodule Geosnap.Db.Comment do
+  @moduledoc """
+  Ecto schema for a comment on a picture.
+  """
   use Geosnap.Db.Schema
   use Geosnap.Db.Changeset
   alias Geosnap.Db.{User, Picture}

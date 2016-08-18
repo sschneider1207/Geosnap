@@ -1,4 +1,7 @@
 defmodule Geosnap.Db do
+  @moduledoc """
+  General purpose functions for working with the Geosnap database.
+  """
   alias Geosnap.Db.{Repo, Application, ApiKey, User, Picture, PictureVote, Comment}
   import Ecto.Query
 
@@ -22,7 +25,7 @@ defmodule Geosnap.Db do
   end
 
   @doc """
-  Changes the email for a user.
+  Changes the email for an application.
   """
   @spec change_application_email(Application.t, map) :: {:ok, Application.t} | {:error, map}
   def change_application_email(application, params) do

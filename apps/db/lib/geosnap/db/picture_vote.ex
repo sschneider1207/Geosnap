@@ -1,4 +1,7 @@
 defmodule Geosnap.Db.PictureVote do
+  @moduledoc """
+  Ecto schema for a user's vote on a picture.
+  """
   use Geosnap.Db.Schema
   use Geosnap.Db.Changeset
   alias Geosnap.Db.{User, Picture}
@@ -8,7 +11,7 @@ defmodule Geosnap.Db.PictureVote do
 
   schema "picture_votes" do
     field :value, :integer
-    
+
     belongs_to :user, User
     belongs_to :picture, Picture
 

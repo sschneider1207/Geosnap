@@ -1,4 +1,14 @@
 defmodule Geosnap.Db.Changeset do
+  @moduledoc """
+  Extensions for Ecto.Changeset.
+
+  # Usage
+
+      defmodule Foo do
+        use Geosnap.Db.Changeset
+
+      end
+  """
   alias Ecto.Changeset
   import Changeset
 

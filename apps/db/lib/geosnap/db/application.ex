@@ -1,4 +1,7 @@
 defmodule Geosnap.Db.Application do
+  @moduledoc """
+  Ecto schema for an application registered to use the Geosnap API.
+  """
   use Geosnap.Db.Schema
   use Geosnap.Db.Changeset
   alias Ecto.Changeset

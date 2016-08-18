@@ -1,4 +1,7 @@
 defmodule Geosnap.Db.ApiKey do
+  @moduledoc """
+  Ecto schema for a Geosnap api key.
+  """
   use Geosnap.Db.Schema
   alias Geosnap.Encryption
   alias Ecto.Changeset
@@ -9,7 +12,7 @@ defmodule Geosnap.Db.ApiKey do
   schema "api_keys" do
     field :public_key, :string
     field :private_key, :string, virtual: true
-    
+
     belongs_to :application, Geosnap.Db.Application
 
     timestamps

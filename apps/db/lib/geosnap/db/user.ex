@@ -1,4 +1,7 @@
 defmodule Geosnap.Db.User do
+  @moduledoc """
+  Ecto schema for a user.
+  """
   use Geosnap.Db.Schema
   use Geosnap.Db.Changeset
   alias Geosnap.Db.{Picture, PictureVote, Comment}

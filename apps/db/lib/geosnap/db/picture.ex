@@ -1,4 +1,7 @@
 defmodule Geosnap.Db.Picture do
+  @moduledoc """
+  Ecto schema for a picture.
+  """
   use Geosnap.Db.Schema
   alias Geosnap.Db.{Application, User, Category, Comment, PictureVote}
   use Geosnap.Db.Changeset
