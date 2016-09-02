@@ -211,17 +211,17 @@ defmodule Geosnap.DbTest do
     assert picture.id == picture2.id
   end
 
-  test "can get pictures and loaded comments with legit id" do
-    {:ok, user} = new_user()
-    {:ok, category} = new_category()
-    {:ok, picture} = new_picture(user.id, category.id)
-    {:ok, comment} = Db.new_comment(%{user_id: user.id, picture_id: picture.id, text: "sop"})
-    picture2 = Db.get_picture(picture.id, true)
-
-    assert picture2.id == picture.id
-    assert length(picture2.comments) == 1
-    assert hd(picture2.comments).id == comment.id
-  end
+  #test "can get pictures and loaded comments with legit id" do
+  #  {:ok, user} = new_user()
+  #  {:ok, category} = new_category()
+  #  {:ok, picture} = new_picture(user.id, category.id)
+  #  {:ok, comment} = Db.new_comment(%{user_id: user.id, picture_id: picture.id, text: "sop"})
+  #  picture2 = Db.get_picture(picture.id, true)
+  #
+  #  assert picture2.id == picture.id
+  #  assert length(picture2.comments) == 1
+  #  assert hd(picture2.comments).id == comment.id
+  #end
 
   test "can create vote on a picture if one doesn't exist" do
     {:ok, user} = new_user()
@@ -285,6 +285,38 @@ defmodule Geosnap.DbTest do
       Ecto.StaleEntryError,
       fn -> Db.delete_picture_vote(%Db.PictureVote{id: 1}) end
     )
+  end
+
+  test "can get an existing vote" do
+    {:ok, user} = new_user()
+    {:ok, category} = new_category()
+    {:ok, picture} = new_picture(user.id, category.id)
+    {:ok, vote1} = Db.vote_on_picture(%{user_id: user.id, picture_id: picture.id, value: 1})
+    vote2 = Db.get_picture_vote(user.id, picture.id)
+
+    assert vote1.id == vote2.id
+  end
+
+  test "retrieving non existant vote returns nil" do
+    vote = Db.get_picture_vote(-1, 1)
+
+    assert is_nil(vote) == true
+  end
+
+  test "can get all votes on a picture" do
+    {:ok, user} = new_user()
+    {:ok, category} = new_category()
+    {:ok, picture} = new_picture(user.id, category.id)
+    {:ok, vote1} = Db.vote_on_picture(%{user_id: user.id, picture_id: picture.id, value: 1})
+    [vote2] = Db.get_picture_votes(picture.id)
+
+    assert vote1.id == vote2.id
+  end
+
+  test "retrieving votes for non existant picture returns empty list" do
+    votes = Db.get_picture_votes(-1)
+
+    assert [] = votes
   end
 
   test "can create a new comment with valid params" do

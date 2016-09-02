@@ -154,18 +154,20 @@ defmodule Geosnap.Db do
   end
 
   @doc """
-  Get a picture by id, optionally including all comments on the picture.
+  Get a picture by id, optionally including loading associations on the picture.
   """
   @spec get_picture(integer, boolean) :: Picture.t | nil
-  def get_picture(id, include_comments \\ false)
+  def get_picture(id, include_assocs \\ false)
   def get_picture(id, false) do
     Repo.get(Picture, id)
   end
   def get_picture(id, true) do
     Repo.one(from p in Picture,
-      join: c in assoc(p, :comments),
+      join: c in assoc(p, :category),
+      join: u in assoc(p, :user),
+      left_join: a in assoc(p, :application),
       where: p.id == ^id,
-      preload: [comments: c])
+      preload: [category: c, user: u, application: a])
   end
 
   @doc """
@@ -201,6 +203,27 @@ defmodule Geosnap.Db do
       {:error, changeset} ->
         {:error, errors_to_map(changeset)}
     end
+  end
+
+  @doc """
+  Gets a vote for a picture by the id of the picture of user who voted.
+  """
+  @spec get_picture_vote(integer, integer) :: PictureVote.t | nil
+  def get_picture_vote(user_id, picture_id) do
+    query = from v in PictureVote,
+      where: v.user_id == ^user_id,
+      where: v.picture_id == ^picture_id
+    Repo.one(query)
+  end
+
+  @doc """
+  Gets all the votes on a picture.
+  """
+  @spec get_picture_votes(integer) :: [PictureVote.t]
+  def get_picture_votes(picture_id) do
+    query = from v in PictureVote,
+      where: v.picture_id == ^picture_id
+    Repo.all(query)
   end
 
   @doc """
