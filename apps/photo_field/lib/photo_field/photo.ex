@@ -120,12 +120,12 @@ defmodule PhotoField.Photo do
       {^me, _} ->
         :gproc.reg(schema_key, picture)
         :gproc.reg(score_key)
-        send(self(), :init_expiration)
-        send(self(), :refresh_score)
         state = struct(State, [
           schema_key: schema_key,
           score_key: score_key,
           picture: picture])
+        init_expiration(state)
+        refresh_score(state)
         {:ok, state}
       {pid, _} ->
         {:stop, {:duplicate, pid}}
@@ -164,30 +164,31 @@ defmodule PhotoField.Photo do
   end
 
   @doc false
-  def handle_info(:refresh_score, state) do
-    votes = Db.get_picture_votes(state.picture.id)
-    score = Enum.reduce(votes, 0, fn vote, acc -> acc + vote.value end)
-    :gproc.set_value(state.score_key, score)
-    {:noreply, state}
-  end
-  def handle_info(:init_expiration, state) do
-    Timex.diff(state.picture.expiration, Timex.now(), :duration)
-    |> Timex.Duration.to_milliseconds()
-    |> Kernel.round()
-    |> schedule_expiration(state)
-  end
   def handle_info(:expired, state) do
     :gproc.goodbye() # Bye bye!
     Db.delete_picture(state.picture)
     {:stop, {:shutdown, :expired}, state}
   end
 
-  defp schedule_expiration(expiration, state) when expiration <= 0 do
-    send(self(), :expired)
-    {:noreply, state}
+  defp refresh_score(state) do
+    votes = Db.get_picture_votes(state.picture.id)
+    score = Enum.reduce(votes, 0, fn vote, acc -> acc + vote.value end)
+    :gproc.set_value(state.score_key, score)
+    :ok
   end
-  defp schedule_expiration(expiration, state) do
+
+  defp init_expiration(state) do
+    Timex.diff(state.picture.expiration, Timex.now(), :duration)
+    |> Timex.Duration.to_milliseconds()
+    |> Kernel.round()
+    |> schedule_expiration()
+    :ok
+  end
+
+  defp schedule_expiration(expiration) when expiration <= 0 do
+    send(self(), :expired)
+  end
+  defp schedule_expiration(expiration) do
     Process.send_after(self(), :expired, expiration)
-    {:noreply, state}
   end
 end
