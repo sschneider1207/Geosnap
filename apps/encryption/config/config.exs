@@ -28,6 +28,10 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
-config :geosnap_encryption, curve_name: :brainpoolP512t1
+config :geosnap_encryption,
+  curve_name: :brainpoolP512t1,
+  comeonin_mod: Comeonin.Bcrypt,
+  hash_function: :sha256
+
 
 import_config "#{Mix.env}.exs"

@@ -3,6 +3,8 @@ defmodule Geosnap.Encryption do
   General purpose encryption functions for the Geosnap ecosystem.
   """
   @curve Application.get_env(:geosnap_encryption, :curve_name)
+  @comeonin_mod Application.get_env(:geosnap_encryption, :comeonin_mod)
+  @hash_function Application.get_env(:geosnap_encryption, :hash_function)
 
   @type key :: {public_key, private_key}
   @type public_key :: String.t
@@ -27,11 +29,17 @@ defmodule Geosnap.Encryption do
   Hashes a password.
   """
   @spec hash_password(String.t) :: String.t
-  defdelegate hash_password(password), to: Comeonin.Pbkdf2, as: :hashpwsalt
+  def hash_password(password) do
+    :crypto.hash(@hash_function, password)
+    |> @comeonin_mod.hashpwsalt()
+  end
 
   @doc """
   Checks a password against a hash in constant time.
   """
   @spec check_password(String.t, String.t) :: boolean
-  defdelegate check_password(password, hash), to: Comeonin.Pbkdf2, as: :checkpw
+  def check_password(password, hash) do
+    :crypto.hash(@hash_function, password)
+    |> @comeonin_mod.checkpw(hash)
+  end
 end

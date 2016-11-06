@@ -1,6 +1,6 @@
 use Mix.Config
 
-config :comeonin, pbkdf2_rounds: 1_000
+config :comeonin, bcrypt_log_rounds: 4
 
 config :geosnap_encryption,
   public_key: "BA7+MZK0Y3sEct/YclMnSdcFbTpR/BlzG6cE388TtTrqJv6YwQSvmVZNTvh0oR+5DgpXxChRlEXu+ltqe3U9J8Rf9KvELSxC12xwvj7A9P7VIzjHQMVeMUZcWAO20E1vNsyFAf3odeqI6QChln9o0t27otxeagmBT4daJ4xKBQYC",
