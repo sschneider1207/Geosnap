@@ -148,8 +148,7 @@ defmodule PhotoField.Photo do
       {:error, errors} ->
         {:reply, {:error, errors}, state}
       {:ok, vote} ->
-        :gproc.update_counter(state.score_key, old_vote.value * -1)
-        :gproc.update_counter(state.score_key, value)
+        :gproc.update_counter(state.score_key, value + (old_vote.value * -1))
         {:reply, {:ok, vote}, state}
     end
   end
