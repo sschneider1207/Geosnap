@@ -21,8 +21,29 @@ defmodule Geosnap.Encryption do
     {Base.encode64(pub), Base.encode64(priv)}
   end
   def generate_key(priv) do
-    {pub, priv} = :crypto.generate_key(:ecdh, @curve, priv)
+    bytes = Base.decode64!(priv)
+    {pub, priv} = :crypto.generate_key(:ecdh, @curve, bytes)
     {Base.encode64(pub), Base.encode64(priv)}
+  end
+
+  @doc """
+  Generates a signature for a message given a private key.
+  """
+  @spec sign(String.t, private_key) :: String.t
+  def sign(msg, priv) do
+    bytes = Base.decode64!(priv)
+    :crypto.sign(:ecdsa, :sha256, msg, [bytes, @curve])
+    |> Base.encode64()
+  end
+
+  @doc """
+  Verifies a signature for a message given a public key.
+  """
+  @spec verify_signature(String.t, String.t, public_key) :: boolean
+  def verify_signature(msg, sig, pub) do
+    key_bytes = Base.decode64!(pub)
+    sig_bytes = Base.decode64!(sig)
+    :crypto.verify(:ecdsa, :sha256, msg, sig_bytes, [key_bytes, @curve])
   end
 
   @doc """
