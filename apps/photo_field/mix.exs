@@ -18,7 +18,7 @@ defmodule PhotoField.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :geosnap_db, :gen_leader, :gproc, :gen_stage],
+    [applications: [:logger, :geosnap_db, :gen_stage, :registry],
      mod: {PhotoField, []}]
   end
 
@@ -37,9 +37,8 @@ defmodule PhotoField.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [{:geosnap_db, in_umbrella: true, path: "../db"},
-     {:gproc, "~> 0.5.0"},
-     {:gen_leader, "~> 0.1.0"},
-     {:gen_stage, "~> 0.5.0"}
+     {:gen_stage, "~> 0.5.0"},
+     {:registry, git: "https://github.com/elixir-lang/registry.git"}
     ]
   end
 end
