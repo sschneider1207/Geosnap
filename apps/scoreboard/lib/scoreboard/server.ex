@@ -1,29 +1,30 @@
-defmodule Scoreboard.NodeManager do
+defmodule Scoreboard.Server do
   @moduledoc """
   Process that manages the scoreboard ets tables for the current node.
   """
   use GenServer
+  alias Scoreboard.Partition
+
+  defmodule State do
+    @moduledoc false
+
+    defstruct [
+      scoreboard: nil,
+      partitions: []
+    ]
+  end
 
   @type key :: term
   @type upvote :: 1
   @type downvote :: -1
   @type vote :: upvote | downvote
 
-  defmacrop transaction(partition, block) do
-    quote location: :keep do
-      Scoreboard.Partition.transaction(unquote(partition), fn ->
-        [do: result] = unquote(block)
-        result
-      end)
-    end
-  end
-
   @doc """
   Starts a node manager process.
   """
   @spec start_link(Scoreboard.t, integer, [tuple]) :: GenServer.on_start
   def start_link(scoreboard, partitions, init_data) do
-    GenServer.start_link(__MODULE__, [scoreboard, partitions, init_data], [name: __MODULE__])
+    GenServer.start_link(__MODULE__, [scoreboard, partitions, init_data], [name: scoreboard])
   end
 
   @doc """
@@ -47,8 +48,8 @@ defmodule Scoreboard.NodeManager do
   @spec put_new(Scoreboard.t, key, integer) :: {:ok, integer} | {:error, :already_exists | :locked}
   def put_new(scoreboard, key, initial_value \\ 0) do
     partition = partition_for(scoreboard, key)
-    transaction(partition) do
-      case :ets.insert_new(partition, {key, initial_value}) do
+    Partition.execute partition, fn p ->
+      case :ets.insert_new(p, {key, initial_value}) do
           true -> {:ok, initial_value}
           false -> {:error, :already_exists}
       end
@@ -61,9 +62,9 @@ defmodule Scoreboard.NodeManager do
   @spec update_score(Scoreboard.t, key, vote) :: {:ok, integer} | {:error, :not_found | :locked}
   def update_score(scoreboard, key, inc) when inc == 1 or inc == -1 do
     partition = partition_for(scoreboard, key)
-    transaction(partition) do
+    Partition.execute partition, fn p ->
       try do
-        :ets.update_counter(partition, key, inc)
+        :ets.update_counter(p, key, inc)
       rescue
         ArgumentError -> {:error, :not_found}
       else
@@ -78,12 +79,28 @@ defmodule Scoreboard.NodeManager do
   @spec set_score(Scoreboard.t, key, integer) :: {:ok, integer} | {:error, :not_found | :locked}
   def set_score(scoreboard, key, value) do
     partition = partition_for(scoreboard, key)
-    transaction(partition) do
-      case :ets.update_element(partition, key, {2, value}) do
+    Partition.execute partition, fn p ->
+      case :ets.update_element(p, key, {2, value}) do
         true -> {:ok, value}
         false -> {:error, :not_found}
       end
     end
+  end
+
+  @doc """
+  Locks an entire scoreboard, buffering writes for when it is unlocked.
+  """
+  @spec lock(Scoreboard.t) :: :ok
+  def lock(scoreboard) do
+    GenServer.call(scoreboard, :lock)
+  end
+
+  @doc """
+  Unlocks an entire scoreboard, executing any buffered writes.
+  """
+  @spec unlock(Scoreboard.t) :: :ok
+  def unlock(scoreboard) do
+    GenServer.call(scoreboard, :unlock)
   end
 
   @doc false
@@ -91,7 +108,19 @@ defmodule Scoreboard.NodeManager do
     scoreboard = :ets.new(scoreboard, [:named_table, {:read_concurrency, true}])
     true = :ets.insert(scoreboard, {scoreboard, partitions})
     true = :ets.insert(scoreboard, init_data)
-    {:ok, scoreboard}
+    partition_names = Enum.map(init_data, &elem(&1, 1))
+    state = struct(State, [scoreboard: scoreboard, partitions: partition_names])
+    {:ok, state}
+  end
+
+  @doc false
+  def handle_call(:lock, _from, state) do
+    Enum.each(state.partitions, &Partition.lock(&1))
+    {:reply, :ok, state}
+  end
+  def handle_call(:unlock, _from, state) do
+    Enum.each(state.partitions, &Partition.unlock(&1))
+    {:reply, :ok, state}
   end
 
   defp partition_for(scoreboard, key) do

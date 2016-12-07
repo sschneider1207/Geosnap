@@ -10,23 +10,31 @@ defmodule Scoreboard do
   Starts a scoreboard supervisor.
   """
   @spec start_link(t, integer) :: Supervisor.on_start
-  def start_link(name, partitions \\ 1) when partitions > 0 do
-    Supervisor.start_link(__MODULE__, [name, partitions], name: name)
+  def start_link(name, opts \\ []) do
+    partitions = opt(:partitions, opts)
+    Supervisor.start_link(__MODULE__, [name, partitions], name: Module.concat(name, "Supervisor"))
+  end
+
+  defp opt(:partitions, opts) do
+    case Keyword.get(opts, :partitions, 1) do
+      n when n >= 1 -> n
+      term -> raise "Expected a positive number of partitions, got #{term}"
+    end
   end
 
   @doc false
   def init([name, partitions]) do
     {partition_specs, table_data} =
-      for n <- 0..(partitions-1) do
-        partition_name = Module.concat(Scoreboard, "Partition" <> Integer.to_string(n))
+      for p <- 0..(partitions-1) do
+        partition_name = Module.concat(Scoreboard, "Partition" <> Integer.to_string(p))
         spec = worker(Scoreboard.Partition, [partition_name], [id: partition_name])
-        table_data = {n, partition_name}
+        table_data = {p, partition_name}
         {spec, table_data}
       end
       |> Enum.unzip()
 
     children = [
-      worker(Scoreboard.NodeManager, [name, partitions, table_data])
+      worker(Scoreboard.Server, [name, partitions, table_data])
     ]
 
     supervise(children ++ partition_specs, strategy: :one_for_one)
