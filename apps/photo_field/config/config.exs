@@ -28,14 +28,3 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
-scope = case Mix.env do
-  :dev -> :l
-  :test -> :l
-  :prod -> :g
-end
-
-config :photo_field, gproc_scope: scope
-
-if Mix.env == :prod do
-  config :gproc, gproc_dist: :all
-end
