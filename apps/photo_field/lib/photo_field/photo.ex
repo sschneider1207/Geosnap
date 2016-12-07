@@ -3,18 +3,9 @@ defmodule PhotoField.Photo do
   A GenServer that represents a picture.
   """
   use GenServer
-  alias PhotoField.{PhotoSupervisor, PhotoRegistry}
+  alias PhotoField.PhotoRegistry
   alias Geosnap.Db
   alias Db.Picture
-
-  defmodule State do
-    @moduledoc false
-    defstruct [
-      schema_key: nil,
-      score_key: nil,
-      picture: nil
-    ]
-  end
 
   @doc false
   @spec start_link(Picture.t, GenServer.option) :: GenServer.on_start
@@ -27,12 +18,10 @@ defmodule PhotoField.Photo do
 
   @doc false
   def init([picture]) do
-    me = self()
     case PhotoRegistry.register(picture) do
       {:ok, _owner} ->
-        state = struct(State, [picture: picture])
-        init_expiration(state)
-        {:ok, state}
+        init_expiration(picture)
+        {:ok, picture}
       {:error, {:already_registered, pid}} ->
         {:stop, {:duplicate, pid}}
       e ->
@@ -43,13 +32,13 @@ defmodule PhotoField.Photo do
 
   @doc false
   def handle_info(:expired, state) do
-    PhotoRegistry.unregister(state.picture)
-    Db.delete_picture(state.picture)
+    PhotoRegistry.unregister(state)
+    Db.delete_picture(state)
     {:stop, {:shutdown, :expired}, state}
   end
 
   defp init_expiration(state) do
-    Timex.diff(state.picture.expiration, Timex.now(), :duration)
+    Timex.diff(state.expiration, Timex.now(), :duration)
     |> Timex.Duration.to_milliseconds()
     |> Kernel.round()
     |> schedule_expiration()

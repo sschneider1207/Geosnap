@@ -1,4 +1,7 @@
 defmodule PhotoField.Scoreboard do
+  @moduledoc """
+  TODO: Make this new app and model after registry (Supervisor managing partition tables)?
+  """
   use GenServer
   alias PhotoField.PhotoRegistry
   alias Geosnap.Db
@@ -44,11 +47,11 @@ defmodule PhotoField.Scoreboard do
     params = %{picture_id: picture_id, user_id: user_id, value: value}
     case Db.vote_on_picture(params) do
       {:ok, vote} ->
-        #try do
+        try do
           :ets.update_counter(__MODULE__, picture_id, value)
-        #rescue
-        #  _ -> :ok
-        #end
+        rescue
+          _ -> :ok
+        end
         {:ok, vote}
       {:error, errors} ->
         {:error, errors}
