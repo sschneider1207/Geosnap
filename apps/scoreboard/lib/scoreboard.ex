@@ -5,6 +5,10 @@ defmodule Scoreboard do
   use Supervisor
 
   @type t :: atom
+  @type key :: term
+  @type upvote :: 1
+  @type downvote :: -1
+  @type vote :: upvote | downvote
 
   @doc """
   Starts a scoreboard supervisor.

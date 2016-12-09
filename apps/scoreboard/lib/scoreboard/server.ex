@@ -14,11 +14,6 @@ defmodule Scoreboard.Server do
     ]
   end
 
-  @type key :: term
-  @type upvote :: 1
-  @type downvote :: -1
-  @type vote :: upvote | downvote
-
   @doc """
   Starts a node manager process.
   """
@@ -30,61 +25,46 @@ defmodule Scoreboard.Server do
   @doc """
   Looks up the integer value for a given key.
   """
-  @spec lookup(Scoreboard.t, key) :: {:ok, integer} | {:error, :not_found}
+  @spec lookup(Scoreboard.t, Scoreboard.key) :: {:ok, integer} | {:error, :not_found}
   def lookup(scoreboard, key) do
-    partition = partition_for(scoreboard, key)
-    try do
-      :ets.lookup_element(partition, key, 2)
-    rescue
-      ArgumentError -> {:error, :not_found}
-    else
-      value -> {:ok, value}
-    end
+    partition_for(scoreboard, key)
+    |> Partition.lookup(key)
   end
 
   @doc """
   Inserts a new counter for the given key, if it does not already exist.
   """
-  @spec put_new(Scoreboard.t, key, integer) :: {:ok, integer} | {:error, :already_exists | :locked}
+  @spec put_new(Scoreboard.t, Scoreboard.key, integer) ::
+    {:ok, integer} |
+    {:error, :already_exists} |
+    :buffered
   def put_new(scoreboard, key, initial_value \\ 0) do
-    partition = partition_for(scoreboard, key)
-    Partition.execute partition, fn p ->
-      case :ets.insert_new(p, {key, initial_value}) do
-          true -> {:ok, initial_value}
-          false -> {:error, :already_exists}
-      end
-    end
+    partition_for(scoreboard, key)
+    |> Partition.put_new(key, initial_value)
   end
 
   @doc """
   Updates the score for a key by the given increment.
   """
-  @spec update_score(Scoreboard.t, key, vote) :: {:ok, integer} | {:error, :not_found | :locked}
-  def update_score(scoreboard, key, inc) when inc == 1 or inc == -1 do
-    partition = partition_for(scoreboard, key)
-    Partition.execute partition, fn p ->
-      try do
-        :ets.update_counter(p, key, inc)
-      rescue
-        ArgumentError -> {:error, :not_found}
-      else
-        new_value -> {:ok, new_value}
-      end
-    end
+  @spec update(Scoreboard.t, Scoreboard.key, Scoreboard.vote) ::
+    {:ok, integer} |
+    {:error, :not_found} |
+    :buffered
+  def update(scoreboard, key, inc) when inc == 1 or inc == -1 do
+    partition_for(scoreboard, key)
+    |> Partition.update(key, inc)
   end
 
   @doc """
   Overwrites the score for a key with the given value
   """
-  @spec set_score(Scoreboard.t, key, integer) :: {:ok, integer} | {:error, :not_found | :locked}
-  def set_score(scoreboard, key, value) do
-    partition = partition_for(scoreboard, key)
-    Partition.execute partition, fn p ->
-      case :ets.update_element(p, key, {2, value}) do
-        true -> {:ok, value}
-        false -> {:error, :not_found}
-      end
-    end
+  @spec set(Scoreboard.t, Scoreboard.key, integer) ::
+    {:ok, integer} |
+    {:error, :not_found} |
+    :buffered
+  def set(scoreboard, key, value) do
+    partition_for(scoreboard, key)
+    |> Partition.set(key, value)
   end
 
   @doc """
