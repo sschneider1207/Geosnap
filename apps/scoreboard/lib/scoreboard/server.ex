@@ -22,9 +22,9 @@ defmodule Scoreboard.Server do
   @doc """
   Starts a node manager process.
   """
-  @spec start_link(Scoreboard.t, integer, [tuple]) :: GenServer.on_start
-  def start_link(scoreboard, partitions, init_data) do
-    GenServer.start_link(__MODULE__, [scoreboard, partitions, init_data], [name: scoreboard])
+  @spec start_link(Scoreboard.t, [{integer, Partition.t}]) :: GenServer.on_start
+  def start_link(scoreboard, partition_indices) do
+    GenServer.start_link(__MODULE__, [scoreboard, partition_indices], [name: scoreboard])
   end
 
   @doc """
@@ -104,11 +104,12 @@ defmodule Scoreboard.Server do
   end
 
   @doc false
-  def init([scoreboard, partitions, init_data]) do
+  def init([scoreboard, partition_indices]) do
+    num_partitions = length(partition_indices)
     scoreboard = :ets.new(scoreboard, [:named_table, {:read_concurrency, true}])
-    true = :ets.insert(scoreboard, {scoreboard, partitions})
-    true = :ets.insert(scoreboard, init_data)
-    partition_names = Enum.map(init_data, &elem(&1, 1))
+    true = :ets.insert(scoreboard, {scoreboard, num_partitions})
+    true = :ets.insert(scoreboard, partition_indices)
+    partition_names = Enum.map(partition_indices, &elem(&1, 1))
     state = struct(State, [scoreboard: scoreboard, partitions: partition_names])
     {:ok, state}
   end

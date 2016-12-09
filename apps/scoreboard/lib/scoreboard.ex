@@ -23,18 +23,18 @@ defmodule Scoreboard do
   end
 
   @doc false
-  def init([name, partitions]) do
-    {partition_specs, table_data} =
-      for p <- 0..(partitions-1) do
+  def init([name, num_partitions]) do
+    {partition_specs, partition_indices} =
+      for p <- 0..(num_partitions-1) do
         partition_name = Module.concat(Scoreboard, "Partition" <> Integer.to_string(p))
         spec = worker(Scoreboard.Partition, [partition_name], [id: partition_name])
-        table_data = {p, partition_name}
-        {spec, table_data}
+        partition_index = {p, partition_name}
+        {spec, partition_index}
       end
       |> Enum.unzip()
 
     children = [
-      worker(Scoreboard.Server, [name, partitions, table_data])
+      worker(Scoreboard.Server, [name, partition_indices])
     ]
 
     supervise(children ++ partition_specs, strategy: :one_for_one)
