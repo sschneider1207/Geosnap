@@ -8,7 +8,11 @@ defmodule Scoreboard.Partition do
 
   defmodule State do
     @moduledoc false
-    defstruct [locked: false, partition: nil, buffer: :queue.new()]
+    defstruct [
+      locked: true,
+      partition: nil,
+      buffer: :queue.new()
+    ]
   end
 
   @doc """
