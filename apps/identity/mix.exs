@@ -41,6 +41,7 @@ defmodule Identity.Mixfile do
      {:ecto, "~> 2.1"},
      {:postgrex, "~> 0.13.0"},
      {:timex, "~> 3.1"},
-     {:timex_ecto, "~> 3.1"},]
+     {:timex_ecto, "~> 3.1"},
+     {:gen_stage, "~> 0.10.0"}]
   end
 end
