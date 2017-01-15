@@ -39,12 +39,18 @@ defmodule Identity.UserRegistry do
   @doc """
   Looks up a user process and it's schema by id.
   """
-  @spec lookup(id) :: {pid, User.t} | nil
-  def lookup(id) do
+  @spec lookup(id | pid) :: {pid, User.t} | nil
+  def lookup(id) when is_integer(id) do
     case Registry.lookup(__MODULE__, id) do
       [{_pid, nil}] -> nil
       [{pid, schema}] -> {pid, schema}
       [] -> nil
+    end
+  end
+  def lookup(pid) when is_pid(pid) do
+    case Registry.keys(__MODULE__, pid) do
+      [] -> nil
+      [id] -> lookup(id)
     end
   end
 

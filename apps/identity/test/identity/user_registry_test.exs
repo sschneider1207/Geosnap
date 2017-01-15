@@ -10,6 +10,14 @@ defmodule Identity.UserRegistryTest do
     assert {^me, ^user} = UserRegistry.lookup(user.id)
   end
 
+  test "can register and lookup with pid" do
+    me = self()
+    user = %User{id: 1}
+    {:ok, _} = UserRegistry.register(user)
+
+    assert {^me, ^user} = UserRegistry.lookup(me)
+  end
+
   test "can register and use via" do
     me = self()
     user = %User{id: 1}
@@ -28,5 +36,5 @@ defmodule Identity.UserRegistryTest do
     :ok = UserRegistry.update_schema!(updated_user)
 
     assert {^me, ^updated_user} = UserRegistry.lookup(updated_user.id)
-  end  
+  end
 end
