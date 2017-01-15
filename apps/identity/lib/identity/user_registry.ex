@@ -25,6 +25,12 @@ defmodule Identity.UserRegistry do
   end
 
   @doc false
+  @spec register(User.t) :: {:ok, pid} | {:error, {:already_registered, pid}}
+  def register(%User{id: id} = schema) do
+    Registry.register(__MODULE__, id, schema)
+  end
+
+  @doc false
   @spec via(id) :: {:via, Registry, {__MODULE__, non_neg_integer}}
   def via(id) do
     {:via, Registry, {__MODULE__, id}}
@@ -49,7 +55,7 @@ defmodule Identity.UserRegistry do
   """
   @spec update_schema!(User.t) :: :ok | no_return
   def update_schema!(%User{id: id} = new_schema) do
-    case Registry.update_value(__MODULE__, id, fn -> new_schema end) do
+    case Registry.update_value(__MODULE__, id, fn _old -> new_schema end) do
       {^new_schema, _old_schema} -> :ok
       :error -> raise "proccess #{inspect(self())} not registered under id #{id}"
     end
