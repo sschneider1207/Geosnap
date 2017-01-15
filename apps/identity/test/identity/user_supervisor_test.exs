@@ -3,10 +3,10 @@ defmodule Identity.UserSupervisorTest do
   alias Identity.{User, UserSupervisor, UserRegistry, Repo}
 
   test "can start a registered process with a user struct" do
-    user = %User{id: 1}
+    user = %User{username: "username"}
     {:ok, pid} = UserSupervisor.start_child(user)
 
-    assert {^pid, ^user} = UserRegistry.lookup(user.id)
+    assert {^pid, ^user} = UserRegistry.lookup(user.username)
   end
 
   test "can start a registered process with a set of params" do

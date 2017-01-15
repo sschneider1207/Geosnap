@@ -3,16 +3,16 @@ defmodule Identity.UserRegistry do
   Registery helpers for `Identity.User.Server` processes.
 
   `Identity.User` schemas are backed by `Identity.User.Server` processes which
-  registry themselves by the id found in the schema.  The registry is set to use
+  registry themselves by the username found in the schema.  The registry is set to use
   partitions equal to the number of schedulers that are online, and operates as
   a single entity per node.
   """
   alias Identity.User
 
   @typedoc """
-  The id from a `User` schema.
+  The username from a `User` schema.
   """
-  @type id :: non_neg_integer
+  @type key :: String.t
 
   @doc """
   Starts the UserRegistry.
@@ -26,22 +26,22 @@ defmodule Identity.UserRegistry do
 
   @doc false
   @spec register(User.t) :: {:ok, pid} | {:error, {:already_registered, pid}}
-  def register(%User{id: id} = schema) do
-    Registry.register(__MODULE__, id, schema)
+  def register(%User{username: username} = schema) do
+    Registry.register(__MODULE__, username, schema)
   end
 
   @doc false
-  @spec via(id) :: {:via, Registry, {__MODULE__, non_neg_integer}}
-  def via(id) do
-    {:via, Registry, {__MODULE__, id}}
+  @spec via(key) :: {:via, Registry, {__MODULE__, key}}
+  def via(username) do
+    {:via, Registry, {__MODULE__, username}}
   end
 
   @doc """
-  Looks up a user process and it's schema by id.
+  Looks up a user process and it's schema by username or pid.
   """
-  @spec lookup(id | pid) :: {pid, User.t} | nil
-  def lookup(id) when is_integer(id) do
-    case Registry.lookup(__MODULE__, id) do
+  @spec lookup(key | pid) :: {pid, User.t} | nil
+  def lookup(username) when is_bitstring(username) do
+    case Registry.lookup(__MODULE__, username) do
       [{_pid, nil}] -> nil
       [{pid, schema}] -> {pid, schema}
       [] -> nil
@@ -50,20 +50,21 @@ defmodule Identity.UserRegistry do
   def lookup(pid) when is_pid(pid) do
     case Registry.keys(__MODULE__, pid) do
       [] -> nil
-      [id] -> lookup(id)
+      [username] -> lookup(username)
     end
   end
 
   @doc """
   Updates a process's registered schema.
 
-  If the calling process is not registered under the id found in the schema, this raises.
+  If the calling process is not registered under the username found in the
+  schema, this raises.
   """
   @spec update_schema!(User.t) :: :ok | no_return
-  def update_schema!(%User{id: id} = new_schema) do
-    case Registry.update_value(__MODULE__, id, fn _old -> new_schema end) do
+  def update_schema!(%User{username: username} = new_schema) do
+    case Registry.update_value(__MODULE__, username, fn _old -> new_schema end) do
       {^new_schema, _old_schema} -> :ok
-      :error -> raise "proccess #{inspect(self())} not registered under id #{id}"
+      :error -> raise "proccess #{inspect(self())} not registered under username #{username}"
     end
   end
 end
