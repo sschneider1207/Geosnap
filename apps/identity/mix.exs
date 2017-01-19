@@ -11,7 +11,13 @@ defmodule Identity.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+     aliases: aliases()]
+  end
+
+  defp aliases do
+    [bench: ["run bench/benchmark.exs"]
+    ]
   end
 
   # Configuration for the OTP application
@@ -41,7 +47,6 @@ defmodule Identity.Mixfile do
      {:ecto, "~> 2.1"},
      {:postgrex, "~> 0.13.0"},
      {:timex, "~> 3.1"},
-     {:timex_ecto, "~> 3.1"},
-     {:gen_stage, "~> 0.10.0"}]
+     {:timex_ecto, "~> 3.1"}]
   end
 end

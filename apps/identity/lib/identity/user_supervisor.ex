@@ -1,9 +1,8 @@
-alias Experimental.DynamicSupervisor
 defmodule Identity.UserSupervisor do
   @moduledoc """
   Supervisor for `Identity.User.Server` processes.
   """
-  use DynamicSupervisor
+  use Supervisor
   alias Identity.User
 
   @doc """
@@ -11,7 +10,7 @@ defmodule Identity.UserSupervisor do
   """
   @spec start_link :: Supervisor.on_start
   def start_link do
-    DynamicSupervisor.start_link(__MODULE__, [], [name: __MODULE__])
+    Supervisor.start_link(__MODULE__, [], [name: __MODULE__])
   end
 
   @doc """
@@ -23,15 +22,15 @@ defmodule Identity.UserSupervisor do
   """
   @spec start_child(User.t | map) :: Supervisor.on_start_child
   def start_child(param) do
-    DynamicSupervisor.start_child(__MODULE__, [param])
+    Supervisor.start_child(__MODULE__, [param])
   end
 
   @doc false
-  def init([]) do
+  def init(start_opts) do
     children = [
-      worker(User.Server, [], [restart: :transient])
+      worker(User.Server, [start_opts], [restart: :transient])
     ]
 
-    {:ok, children, strategy: :one_for_one}
+    supervise(children, strategy: :simple_one_for_one)
   end
 end

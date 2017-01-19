@@ -31,4 +31,7 @@ use Mix.Config
 config :identity, :ecto_repos,
   [Identity.Repo]
 
+config :logger, :console,
+  metadata: [:pid, :remaining_ms, :user]
+
 import_config "#{Mix.env}.exs"
