@@ -1,5 +1,4 @@
 defmodule StoreHouse.Utils do
-  alias StoreHouse.Table
   @timestamp_precision :microsecond
 
   @spec timestamp() :: integer

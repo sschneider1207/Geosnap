@@ -43,15 +43,18 @@ defmodule StoreHouse.Application do
   """
   @spec change_email(tuple, String.t) :: {:ok, tuple} | {:error, term}
   def change_email(app, new_email) do
-    case Utils.valid_email?(new_email) do
+    with old_email when old_email !== new_email <- application(app, :email),
+         true <- Utils.valid_email?(new_email)
+    do
+      row = application(app, [
+        email: new_email,
+        verified_email: false,
+        updated_at: Utils.timestamp()
+      ])
+      {:ok, row}
+    else
       false -> {:error, :invalid_email}
-      true ->
-        row = application(app, [
-          email: new_email,
-          verified_email: false,
-          updated_at: Utils.timestamp()
-        ])
-        {:ok, row}
+      ^new_email -> {:error, :email_unchanged}
     end
   end
 end

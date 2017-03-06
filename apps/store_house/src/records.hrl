@@ -40,10 +40,10 @@
                 value = 0 :: integer()}).
 
 -record(user, {key :: binary(),
-               email :: binary(),
                hashed_password :: binary(),
-               verified_email :: binary(),
-               permissions :: integer(),
+               email :: binary(),
+               verified_email = false :: binary(),
+               permissions = 0 :: integer(),
                inserted_at :: integer(),
                updated_at :: integer()}).
 

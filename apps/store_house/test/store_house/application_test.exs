@@ -38,7 +38,6 @@ defmodule StoreHouse.ApplicationTest do
 
       assert Application.verify_email(app2) === {:error, :already_verified}
     end
-
   end
 
   describe "change_email/2" do
