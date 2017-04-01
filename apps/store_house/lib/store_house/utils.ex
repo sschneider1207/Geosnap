@@ -106,4 +106,15 @@ defmodule StoreHouse.Utils do
     (not dot_after) or
     error) === false
   end
+
+  # macros
+
+  defmacro is_coordinate(loc) do
+    quote do
+      -90 <= elem(unquote(loc), 0) and
+      elem(unquote(loc), 0) <= 90 and
+      -180 <= elem(unquote(loc), 1) and
+      elem(unquote(loc), 1) <= 180
+    end
+  end
 end

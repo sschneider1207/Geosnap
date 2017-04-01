@@ -29,7 +29,7 @@
                   location = {undefined, undefined} :: {integer(), integer()},
                   picture_path :: binary(),
                   thumbnail_path :: binary(),
-                  md5 :: binary(),
+                  hash :: binary(),
                   user_key :: binary(),
                   category_key :: binary(),
                   application_key :: binary(),
