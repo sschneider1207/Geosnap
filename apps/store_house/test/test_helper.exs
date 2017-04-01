@@ -19,7 +19,14 @@ defmodule TestUtils do
     require Application
     {:ok, app} = Application.new("name", "cia@kgb.ru")
     key = Application.application(app, :key)
-    {:app, key}
+    {app, key}
+  end
+
+  def picture(uk, ck, ak) do
+    require Picture
+    {:ok, pic} = Picture.new("title", {0, 0}, "abc", uk, ck, ak)
+    key = Picture.picture(pic, :key)
+    {pic, key}
   end
 end
 

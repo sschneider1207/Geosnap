@@ -22,7 +22,7 @@ defmodule StoreHouse.Picture do
       updated_at: Utils.timestamp()
     ])}
   end
-  def new(_, _, _, _, _, _, _, _) do
+  def new(_, _, _, _, _, _) do
     {:error, :invalid_location}
   end
 
