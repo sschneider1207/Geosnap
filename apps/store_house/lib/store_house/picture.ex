@@ -6,11 +6,11 @@ defmodule StoreHouse.Picture do
   @doc """
   Create a new picture record.
   """
-  @spec new(String.t, {integer, integer}, String.t, integer, integer, integer)
+  @spec new(String.t, {integer, integer}, String.t, String.t, String.t, String.t)
     :: {:ok, tuple} |
        {:error, term}
   def new(title, loc, hash, user, cat, app) when is_coordinate(loc) do
-    {:ok, row = picture([
+    {:ok, picture([
       key: Utils.new_key(), # look into geohashing
       title: title,
       location: loc,
