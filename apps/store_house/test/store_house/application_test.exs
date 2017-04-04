@@ -18,6 +18,7 @@ defmodule StoreHouse.ApplicationTest do
       assert Application.application(app, :name) === @name
       assert Application.application(app, :email) === @email
       assert Application.application(app, :verified_email) === false
+      assert Application.application(app, :permissions) === 0
       assert Application.application(app, :inserted_at) > now
       assert Application.application(app, :updated_at) > now
     end

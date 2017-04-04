@@ -7,6 +7,7 @@
                       name :: binary(),
                       email :: binary(),
                       verified_email = false :: boolean(),
+                      permissions = 0 :: binary(),
                       inserted_at :: integer(),
                       updated_at :: integer()}).
 

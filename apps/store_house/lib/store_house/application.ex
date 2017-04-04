@@ -14,6 +14,7 @@ defmodule StoreHouse.Application do
           key: Utils.new_key(),
           name: name,
           email: email,
+          permissions: 0,
           inserted_at: Utils.timestamp(),
           updated_at: Utils.timestamp()
         ])
