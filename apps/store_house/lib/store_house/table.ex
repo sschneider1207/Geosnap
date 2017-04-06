@@ -35,8 +35,8 @@ defmodule StoreHouse.Table do
       @doc """
       Converts a(n) #{name} record into a struct.
       """
-      @spec row_to_struct(tuple) :: t
-      def row_to_struct(row) do
+      @spec struct(tuple) :: t
+      def struct(row) do
         struct(__MODULE__, unquote(name)(row))
       end
     end

@@ -23,6 +23,6 @@ defmodule StoreHouse.App do
   defp wait_for_tables do
     table_defs = Application.get_env(:store_house, :table_definitions, [])
     tables = for {t, _} <- table_defs, do: t
-    #:mnesia.wait_for_tables(tables, 10_000)
+    :mnesia.wait_for_tables(tables, 10_000)
   end
 end
