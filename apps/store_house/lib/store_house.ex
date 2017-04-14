@@ -50,4 +50,18 @@ defmodule StoreHouse do
         {Application.struct(app), ApiKey.struct(api_key)}
     end
   end
+
+  def change_application_email(app, params) do
+    new_email = params["email"]
+    confirmation = params["email_confirmation"]
+    with true <- new_email === confirmation,
+         {:ok, new_app} <- Application.change_email(app, new_email), 
+         {:atomic, :ok} <- :mnesia.transaction(&:mnesia.write/1, [new_app])
+    do
+      {:atomic, Application.struct(new_app)}
+    else
+      false -> {:aborted, :emails_do_not_match}
+      {:error, reason} -> {:aborted, reason}
+    end
+  end
 end

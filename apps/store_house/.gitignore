@@ -20,3 +20,9 @@ erl_crash.dump
 *.ez
 
 /Mnesia.*
+
+dev.exs
+test.exs
+prod.exs
+
+*.swp
