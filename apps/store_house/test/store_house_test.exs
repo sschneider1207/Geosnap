@@ -8,7 +8,7 @@ defmodule StoreHouseTest do
       result = StoreHouse.new_application(%{
         "name" => "android",
         "email" => "google@gmail.com",
-        "confirmed_email" => "apple@gmail.com"
+        "email_confirmation" => "apple@gmail.com"
       })
 
       assert result = {:aborted, :emails_do_not_match}
@@ -44,11 +44,21 @@ defmodule StoreHouseTest do
     test "unconfirmed email is aborted", %{app: app} do
       params = %{
         "email" => "apple@ios.com",
-        "confirmed_email" => "nsa@cia.gov"
+        "email_confirmation" => "nsa@cia.gov"
       }
       result = StoreHouse.change_application_email(app.key, params)
 
       assert result === {:aborted, :emails_do_not_match}
+    end
+
+    test "missing app key aborts" do
+      params = %{
+        "email" => "apple@ios.com",
+        "email_confirmation" => "apple@ios.com"
+      }
+      result = StoreHouse.change_application_email("abc", params)
+
+      assert result === {:aborted, :application_not_found}
     end
   end
 end

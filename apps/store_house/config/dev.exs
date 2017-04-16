@@ -1,9 +1,9 @@
 use Mix.Config
 
-config :mnesia, dir: '/home/sam/Documents/mnesia/geosnap'
+config :mnesia, dir: '/root/Documents/mnesia/geosnap'
 
 config :store_house, [
-  disc_nodes: [:"mnesia@tactical-thinkpad"],
+  disc_nodes: [:"mnesia@TACTICAL-PC"],
   table_definitions: [
     api_key: [
       disc_copies: [],
