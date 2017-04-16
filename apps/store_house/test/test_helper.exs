@@ -22,6 +22,14 @@ defmodule TestUtils do
     {app, key}
   end
 
+  def app_params do
+    %{
+      "name" => UUID.uuid4(:hex),
+      "email" => "google@gmail.com",
+      "confirmed_email" => "google@gmail.com"
+    }
+  end
+
   def picture(uk, ck, ak) do
     require Picture
     {:ok, pic} = Picture.new("title", {0, 0}, "abc", uk, ck, ak)

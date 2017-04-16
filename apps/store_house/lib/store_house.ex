@@ -4,6 +4,7 @@ defmodule StoreHouse do
   """
   alias StoreHouse.{ApiKey, Application, User, Picture, Vote, Score, Comment}
   require Application
+  require ApiKey
 
   @doc """
   Hello world.
@@ -19,49 +20,100 @@ defmodule StoreHouse do
   end
 
   @doc """
-  Creates a new application and associated api key.
+  Creates a new application and associated api keys.
   """
   @spec new_application(map) ::
     {:aborted, term} |
-    {:atomic, {Application.t, ApiKey.t}}
+    {:atomic, {Application.t, ApiKey.t, ApiKey.t}}
   def new_application(params) do
     name = params["name"]
     email = params["email"]
-    case Application.new(name, email) do
-      {:error, reason} -> 
-        {:aborted, reason}
-      {:ok, app} ->
-        :mnesia.transaction(&insert_new_app/1, [app])
+    confirmation = params["confirmed_email"]
+    case email === confirmation do
+      false -> {:aborted, :emails_do_not_match}
+      true -> :mnesia.transaction(&write_new_app/2, [name, email])
     end
   end
 
-  defp insert_new_app(app) do
-    Application.application(app, :name)
-    |> :qlc_queries.application_by_name()
+  defp write_new_app(name, email) do
+    true = unique_app_name?(name)
+    case Application.new(name, email) do
+      {:error, reason} -> :mnesia.abort(reason)
+      {:ok, app} ->
+        :mnesia.write(app)
+        primary_api_key = new_api_key(app)
+        secondary_api_key = new_api_key(app)
+        :mnesia.write(primary_api_key)
+        :mnesia.write(secondary_api_key)
+        {
+          Application.struct(app), 
+          ApiKey.struct(primary_api_key), 
+          ApiKey.struct(secondary_api_key)
+        }
+    end
+  end
+
+  defp unique_app_name?(name) do
+    :qlc_queries.application_by_name(name)
     |> :qlc.e()
     |> case do
       [_] -> :mnesia.abort(:name_not_unique)
-      _ ->
-        :mnesia.write(app)
-        api_key =
-          Application.application(app, :key)
-          |> ApiKey.new()
-        :mnesia.write(api_key)
-        {Application.struct(app), ApiKey.struct(api_key)}
+      _ -> true
     end
   end
 
-  def change_application_email(app, params) do
+  defp new_api_key(app) do
+    Application.application(app, :key)
+    |> ApiKey.new()
+  end
+
+  @doc """
+  Change the email on an application by providing a confirmed new email.
+  """
+  @spec change_application_email(String.t, map) :: 
+    {:atomic, Application.t} |
+    {:aborted, term}
+  def change_application_email(app_key, params) do
     new_email = params["email"]
     confirmation = params["email_confirmation"]
-    with true <- new_email === confirmation,
-         {:ok, new_app} <- Application.change_email(app, new_email), 
-         {:atomic, :ok} <- :mnesia.transaction(&:mnesia.write/1, [new_app])
-    do
-      {:atomic, Application.struct(new_app)}
-    else
+    case new_email === confirmation do
+      true -> :mnesia.transaction(&write_app_email/2, [app_key, new_email])
       false -> {:aborted, :emails_do_not_match}
-      {:error, reason} -> {:aborted, reason}
     end
+  end
+
+  defp write_app_email(app_key, new_email) do
+    app = read_or_abort(:application, app_key)
+    case Application.change_email(app, new_email) do
+    {:ok, new_app} ->
+      :mnesia.write(new_app)
+      Application.struct(new_app)
+    {:error, reason} ->
+      :mnesia.abort(reason)
+    end 
+  end
+
+  defp read_or_abort(table, key) do
+    case :mnesia.read(table, key) do
+      [r|_] -> r
+      [] -> :mnesia.abort(:"#{table}_not_found")
+    end
+  end
+
+  @doc """
+  Retrieve an application by it's associated api key.
+  """
+  @spec get_application(binary) ::
+    {:atomic, Application.t} |
+    {:aborted, term}
+  def get_application(api_key) do
+    :mnesia.transaction(&get_app_by_api_key/1, [api_key])
+  end
+
+  defp get_app_by_api_key(api_key_key) do
+    api_key = read_or_abort(:api_key, api_key_key)
+    app_key = ApiKey.api_key(api_key, :application_key)
+    read_or_abort(:application, app_key)
+    |> Application.struct()
   end
 end
