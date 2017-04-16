@@ -107,6 +107,13 @@ defmodule StoreHouse.Utils do
     error) === false
   end
 
+  @spec check_confirmation(String.t, map) :: boolean
+  def check_confirmation(field, params) do
+    value = params[field]
+    confirmed_value = params["#{field}_confirmation"]
+    value === confirmed_value
+  end
+
   # macros
 
   defmacro is_coordinate(loc) do

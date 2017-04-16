@@ -26,7 +26,7 @@ defmodule TestUtils do
     %{
       "name" => UUID.uuid4(:hex),
       "email" => "google@gmail.com",
-      "confirmed_email" => "google@gmail.com"
+      "email_confirmation" => "google@gmail.com"
     }
   end
 

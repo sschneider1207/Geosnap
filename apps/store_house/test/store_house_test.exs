@@ -11,7 +11,7 @@ defmodule StoreHouseTest do
         "email_confirmation" => "apple@gmail.com"
       })
 
-      assert result = {:aborted, :emails_do_not_match}
+      assert {:aborted, :emails_do_not_match} = result
     end
 
     test "confirmed email and unique name is inserted" do
@@ -59,6 +59,40 @@ defmodule StoreHouseTest do
       result = StoreHouse.change_application_email("abc", params)
 
       assert result === {:aborted, :application_not_found}
+    end
+  
+    test "confirmed email changes email", %{app: app} do
+      params = %{
+          "email" => "apple@ios.com",
+          "email_confirmation" => "apple@ios.com"
+        }
+      {:atomic, new_app} = StoreHouse.change_application_email(app.key, params)
+
+      assert new_app.email === params["email"]
+      assert new_app.verified_email === false
+    end
+  end
+
+  describe "get_application/1" do
+    setup do
+      {:atomic, {app, key1, key2}} =
+        TestUtils.app_params()
+        |> StoreHouse.new_application()
+      [app: app, key1: key1, key2: key2]
+    end
+
+    test "api key retrieves linked app", context do
+      {:atomic, app1} = StoreHouse.get_application(context.key1.key)
+      {:atomic, app2} = StoreHouse.get_application(context.key2.key)
+
+      assert app1 === context.app
+      assert app2 === context.app
+    end
+
+    test "fake api key aborts" do
+      result = StoreHouse.get_application("abc")
+
+      assert {:aborted, :api_key_not_found} = result
     end
   end
 end

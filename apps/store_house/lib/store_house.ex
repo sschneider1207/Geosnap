@@ -2,7 +2,7 @@ defmodule StoreHouse do
   @moduledoc """
   Documentation for StoreHouse.
   """
-  alias StoreHouse.{ApiKey, Application, User, Picture, Vote, Score, Comment}
+  alias StoreHouse.{ApiKey, Application, User, Picture, Vote, Score, Comment, Utils}
   require Application
   require ApiKey
 
@@ -28,8 +28,7 @@ defmodule StoreHouse do
   def new_application(params) do
     name = params["name"]
     email = params["email"]
-    confirmation = params["confirmed_email"]
-    case email === confirmation do
+    case Utils.check_confirmation("email", params) do
       false -> {:aborted, :emails_do_not_match}
       true -> :mnesia.transaction(&write_new_app/2, [name, email])
     end
@@ -75,8 +74,7 @@ defmodule StoreHouse do
     {:aborted, term}
   def change_application_email(app_key, params) do
     new_email = params["email"]
-    confirmation = params["email_confirmation"]
-    case new_email === confirmation do
+    case Utils.check_confirmation("email", params) do
       true -> :mnesia.transaction(&write_app_email/2, [app_key, new_email])
       false -> {:aborted, :emails_do_not_match}
     end
