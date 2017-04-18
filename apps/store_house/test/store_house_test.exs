@@ -95,4 +95,30 @@ defmodule StoreHouseTest do
       assert {:aborted, :api_key_not_found} = result
     end
   end
+
+  describe "rotate_api_key/1" do
+    setup do
+      {:atomic, {app, key1, key2}} =
+        TestUtils.app_params()
+        |> StoreHouse.new_application()
+      [app: app, key1: key1, key2: key2]
+    end
+
+    test "rotating key destroys it and returns a new one", context do
+      {:atomic, api_key} = StoreHouse.rotate_api_key(context.key1.key)
+      bad_result = StoreHouse.get_application(context.key1.key)
+
+      assert {:aborted, :api_key_not_found} = bad_result
+
+      {:atomic, app} = StoreHouse.get_application(api_key.key)
+      
+      assert app === context.app
+    end
+
+    test "rotating fake key aborts" do
+      result = StoreHouse.rotate_api_key("abc")
+
+      assert {:aborted, :api_key_not_found} = result
+    end
+  end
 end

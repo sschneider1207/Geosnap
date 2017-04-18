@@ -39,11 +39,11 @@ defmodule StoreHouse do
     case Application.new(name, email) do
       {:error, reason} -> :mnesia.abort(reason)
       {:ok, app} ->
-        :mnesia.write(app)
+        :ok = :mnesia.write(app)
         primary_api_key = new_api_key(app)
         secondary_api_key = new_api_key(app)
-        :mnesia.write(primary_api_key)
-        :mnesia.write(secondary_api_key)
+        :ok = :mnesia.write(primary_api_key)
+        :ok = :mnesia.write(secondary_api_key)
         {
           Application.struct(app), 
           ApiKey.struct(primary_api_key), 
@@ -84,7 +84,7 @@ defmodule StoreHouse do
     app = read_or_abort(:application, app_key)
     case Application.change_email(app, new_email) do
     {:ok, new_app} ->
-      :mnesia.write(new_app)
+      :ok = :mnesia.write(new_app)
       Application.struct(new_app)
     {:error, reason} ->
       :mnesia.abort(reason)
@@ -97,7 +97,7 @@ defmodule StoreHouse do
       [] -> :mnesia.abort(:"#{table}_not_found")
     end
   end
-
+  
   @doc """
   Retrieve an application by it's associated api key.
   """
@@ -114,4 +114,18 @@ defmodule StoreHouse do
     read_or_abort(:application, app_key)
     |> Application.struct()
   end
+
+  def rotate_api_key(api_key_key) do
+    :mnesia.transaction(&delete_write_new_api_key/1, [api_key_key])
+  end
+
+  defp delete_write_new_api_key(api_key_key) do
+    api_key = read_or_abort(:api_key, api_key_key)
+    :ok = :mnesia.delete({:api_key, api_key_key})
+    app_key = ApiKey.api_key(api_key, :application_key)
+    new_api_key = ApiKey.new(app_key)
+    :ok = :mnesia.write(new_api_key)
+    ApiKey.struct(new_api_key)
+  end
+
 end
